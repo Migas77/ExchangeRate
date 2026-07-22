@@ -8,6 +8,7 @@ class ExchangeRateApiApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// empty placeholder method
 	}
 
 }
