@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collections;
@@ -14,7 +16,10 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class LiveRates {
+public class LiveRates implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 855532991964951105L;
 
 	@JsonProperty("terms")
 	private @Nullable URI terms = null;
@@ -62,10 +67,6 @@ public class LiveRates {
 			}
 			quotes.put(Currency.valueOf(key.substring(prefixLength)), value);
 		});
-
-		if (quotes.size() != rawQuotes.size()) {
-			throw new IllegalArgumentException("Duplicate quote keys found for source currency '%s'".formatted(prefix));
-		}
 
 		return Collections.unmodifiableMap(quotes);
 	}

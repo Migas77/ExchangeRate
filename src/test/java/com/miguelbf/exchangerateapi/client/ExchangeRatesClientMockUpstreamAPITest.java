@@ -22,10 +22,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.response.DefaultResponseCreator;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.ValueInstantiationException;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -236,6 +236,31 @@ class ExchangeRatesClientMockUpstreamAPITest {
             () -> exchangeRatesClientService.getLiveRates(sourceCurr, targetCurr)
         );
         assertInstanceOf(HttpMessageNotReadableException.class, ex.getCause());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "{\"success\": true, \"timestamp\": 1699900000, \"source\": \"USD\", \"quotes\": {}}",
+        "{\"success\": true, \"timestamp\": 1699900000, \"source\": \"USD\", \"quotes\":{\"EURGBP\": 0.85}}",
+        "{\"success\": false, \"timestamp\": 1699900000, \"source\": \"USD\", \"quotes\":{\"USDEUR\": 0.85}}",
+    })
+    void whenUpstreamReturnsSuccessButMalformedQuotes_thenThrowsRestClientExceptionWrappingIllegalArgumentException(
+        String invalidResponse
+    ) {
+        Currency sourceCurr = Currency.USD;
+        String url = exchangeRatesClientProperties.getBaseUrl() + "/live";
+        server.expect(once(), requestTo(startsWith(url)))
+            .andExpect(method(HttpMethod.GET))
+            .andExpect(queryParam("access_key", exchangeRatesClientProperties.getAccessKey()))
+            .andExpect(queryParam("source", sourceCurr.name()))
+            .andRespond(withSuccess(invalidResponse, MediaType.APPLICATION_JSON));
+
+        RestClientException ex = assertThrows(
+            RestClientException.class,
+            () -> exchangeRatesClientService.getLiveRates(sourceCurr, null)
+        );
+        assertInstanceOf(HttpMessageNotReadableException.class, ex.getCause());
+        assertInstanceOf(IllegalArgumentException.class, ex.getRootCause());
     }
 
     private static Stream<Arguments> documentedErrorScenarios() {
