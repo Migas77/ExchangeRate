@@ -42,12 +42,12 @@ public class ExchangeRatesController {
 	@ResponseStatus(HttpStatus.OK)
 	public RatesResponse getExchangeRates(
 		@Parameter(description = "Source (base) currency to which all `rates` are relative", required = true)
-		@RequestParam(required = true) Currency from,
+		@RequestParam(required = true) Currency source,
 
 		@Parameter(description = "Target currency to which all `rates` are relative")
-		@RequestParam(required = false) @Nullable Currency to
+		@RequestParam(required = false) @Nullable Currency target
 	) {
-		return this.exchangeRatesService.getRates(from, to);
+		return this.exchangeRatesService.getRates(source, target);
 	}
 
 }

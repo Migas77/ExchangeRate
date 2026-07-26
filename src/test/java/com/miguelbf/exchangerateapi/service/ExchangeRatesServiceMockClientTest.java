@@ -16,7 +16,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
 class ExchangeRatesServiceMockClientTest {
@@ -75,8 +74,8 @@ class ExchangeRatesServiceMockClientTest {
             () -> exchangeRatesService.getRates(Currency.USD, Currency.EUR)
         );
 
-        assertEquals(Currency.USD, ex.getFrom());
-        assertEquals(Currency.EUR, ex.getTo());
+        assertEquals(Currency.USD, ex.getSource());
+        assertEquals(Currency.EUR, ex.getTarget());
         assertEquals(spy, ex.getLiveRates());
         verify(exchangeRatesClientService, times(1)).getLiveRates(Currency.USD, Currency.EUR);
         verify(spy, times(1)).getSource();
@@ -96,8 +95,8 @@ class ExchangeRatesServiceMockClientTest {
             () -> exchangeRatesService.getRates(Currency.USD, Currency.EUR)
         );
 
-        assertEquals(Currency.USD, ex.getFrom());
-        assertEquals(Currency.EUR, ex.getTo());
+        assertEquals(Currency.USD, ex.getSource());
+        assertEquals(Currency.EUR, ex.getTarget());
         assertEquals(spy, ex.getLiveRates());
         verify(exchangeRatesClientService, times(1)).getLiveRates(Currency.USD, Currency.EUR);
         verify(spy, times(1)).getQuotes();
@@ -114,8 +113,8 @@ class ExchangeRatesServiceMockClientTest {
             () -> exchangeRatesService.getRates(Currency.USD, Currency.EUR)
         );
 
-        assertEquals(Currency.USD, ex.getFrom());
-        assertEquals(Currency.EUR, ex.getTo());
+        assertEquals(Currency.USD, ex.getSource());
+        assertEquals(Currency.EUR, ex.getTarget());
         assertEquals(spy, ex.getLiveRates());
         verify(exchangeRatesClientService, times(1)).getLiveRates(Currency.USD, Currency.EUR);
         verify(spy, times(1)).getQuotes();
@@ -136,8 +135,8 @@ class ExchangeRatesServiceMockClientTest {
             () -> exchangeRatesService.getRates(Currency.USD, null)
         );
 
-        assertEquals(Currency.USD, ex.getFrom());
-        assertNull(ex.getTo());
+        assertEquals(Currency.USD, ex.getSource());
+        assertNull(ex.getTarget());
         assertEquals(spy, ex.getLiveRates());
         verify(exchangeRatesClientService, times(1)).getLiveRates(Currency.USD, null);
         verify(spy, times(1)).getQuotes();

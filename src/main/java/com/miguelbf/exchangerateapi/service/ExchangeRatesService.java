@@ -1,10 +1,10 @@
 package com.miguelbf.exchangerateapi.service;
 
+import com.miguelbf.exchangerateapi.client.IExchangeRatesClientService;
 import com.miguelbf.exchangerateapi.exception.RatesUpstreamDataException;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.LiveRates;
 import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
-import com.miguelbf.exchangerateapi.client.IExchangeRatesClientService;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
@@ -22,23 +22,23 @@ public class ExchangeRatesService implements IExchangeRatesService {
 	}
 
 	@Override
-	public RatesResponse getRates(Currency from, @Nullable Currency to) {
-		LiveRates liveRates = this.exchangeRatesRepository.getLiveRates(from, to);
+	public RatesResponse getRates(Currency from, @Nullable Currency target) {
+		LiveRates liveRates = this.exchangeRatesRepository.getLiveRates(from, target);
 		Currency source = liveRates.getSource();
 		Map<Currency, BigDecimal> quotes = liveRates.getQuotes();
 
 		if (!from.equals(source)) {
 			throw new RatesUpstreamDataException.UnexpectedSource(
-				"Expected source currency %s, got %s".formatted(from, source), from, to, liveRates);
-		} else if (to != null) {
+				"Expected source currency %s, got %s".formatted(from, source), from, target, liveRates);
+		} else if (target != null) {
 			if (quotes.size() != 1) {
 				throw new RatesUpstreamDataException.UnexpectedQuoteCount(
-					"Expected 1 quote from %s to %s, got %s".formatted(from, to, quotes.size()), from, to, liveRates);
-			} else if (!quotes.containsKey(to)) {
+					"Expected 1 quote from %s to %s, got %s".formatted(from, target, quotes.size()), from, target, liveRates);
+			} else if (!quotes.containsKey(target)) {
 				throw new RatesUpstreamDataException.UnexpectedTarget(
-					"Expected 1 quote from %s to %s, got other %s".formatted(from, to, quotes.size()), from, to, liveRates);
+					"Expected 1 quote from %s to %s, got other %s".formatted(from, target, quotes.size()), from, target, liveRates);
 			}
-		} else if (quotes.size() <= 1){
+		} else if (quotes.size() <= 1) {
 			throw new RatesUpstreamDataException.UnexpectedQuoteCount(
 				"Expected multiple quotes from %s to %s, got %s".formatted(from, null, quotes.size()), from, null, liveRates);
 		}

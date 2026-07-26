@@ -19,7 +19,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -59,8 +61,8 @@ class ExchangeRatesControllerMockServiceTest {
         mockMvc
             .perform(
                 get("/api/rates")
-                    .queryParam("from", Currency.USD.name())
-                    .queryParam("to", Currency.EUR.name())
+	                .queryParam("source", Currency.USD.name())
+	                .queryParam("target", Currency.EUR.name())
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isInternalServerError())
             .andExpect(jsonPath("$.instance", is("/api/rates")))
@@ -83,7 +85,7 @@ class ExchangeRatesControllerMockServiceTest {
         mockMvc
             .perform(
                 get("/api/rates")
-                .queryParam("from", Currency.USD.name())
+                .queryParam("source", Currency.USD.name())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.timestamp", is(1)))
@@ -105,8 +107,8 @@ class ExchangeRatesControllerMockServiceTest {
         mockMvc
             .perform(
                 get("/api/rates")
-                .queryParam("from", Currency.EUR.name())
-                .queryParam("to", Currency.EUR.name())
+                .queryParam("source", Currency.EUR.name())
+                .queryParam("target", Currency.EUR.name())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.timestamp", is(1)))
@@ -123,8 +125,8 @@ class ExchangeRatesControllerMockServiceTest {
         // Default Problem Detail handled by Spring
 
         MockHttpServletRequestBuilder request = get("/api/rates").contentType(MediaType.APPLICATION_JSON);
-        if (from != null) request = request.queryParam("from", from.toString());
-        if (to != null) request = request.queryParam("to", to.toString());
+		if (from != null) request = request.queryParam("source", from.toString());
+		if (to != null) request = request.queryParam("target", to.toString());
 
         mockMvc
             .perform(request)

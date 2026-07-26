@@ -1,12 +1,14 @@
 package com.miguelbf.exchangerateapi.client;
 
 import com.miguelbf.exchangerateapi.exception.RatesUpstreamAPIException;
+import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.ExchangeRateApiSuccess;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.LiveRates;
-import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import org.jspecify.annotations.Nullable;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -16,23 +18,24 @@ import java.util.Optional;
 @Service
 public class ExchangeRatesClientService implements IExchangeRatesClientService {
 
-	private final RestClient restClient;
 	private static final ParameterizedTypeReference<ExchangeRateApiSuccess<LiveRates>> LIVE_RATES_SUCCESS_TYPE =
-		new ParameterizedTypeReference<>() {};
+		new ParameterizedTypeReference<>() {
+		};
+	private final RestClient restClient;
 
 	public ExchangeRatesClientService(RestClient restClient) {
 		this.restClient = restClient;
 	}
 
 	@Override
-	public LiveRates getLiveRates(Currency from, @Nullable Currency to) {
+	public LiveRates getLiveRates(Currency source, @Nullable Currency target) {
 
 		ExchangeRateApiSuccess<LiveRates> liveRatesResponse = restClient
 			.get()
 			.uri(uriBuilder -> uriBuilder
 				.path("/live")
-				.queryParam("source", from.name())
-				.queryParamIfPresent("currencies", Optional.ofNullable(to).map(Currency::name))
+				.queryParam("source", source.name())
+				.queryParamIfPresent("currencies", Optional.ofNullable(target).map(Currency::name))
 				.build()
 			)
 			.exchange((request, response) -> {
@@ -60,11 +63,11 @@ public class ExchangeRatesClientService implements IExchangeRatesClientService {
 		return liveRatesResponse.data();
 	}
 
-    private boolean isDocumentedHttpErrorStatusCode(HttpStatusCode httpStatusCode) {
-	    // matches HTTP status codes explicitly documented in the exchange rate API's error spec
-	    return httpStatusCode.is5xxServerError()
-		    || httpStatusCode.equals(HttpStatus.BAD_REQUEST)
-		    || httpStatusCode.equals(HttpStatus.UNAUTHORIZED)
-		    || httpStatusCode.equals(HttpStatus.TOO_MANY_REQUESTS);
-    }
+	private boolean isDocumentedHttpErrorStatusCode(HttpStatusCode httpStatusCode) {
+		// matches HTTP status codes explicitly documented in the exchange rate API's error spec
+		return httpStatusCode.is5xxServerError()
+			|| httpStatusCode.equals(HttpStatus.BAD_REQUEST)
+			|| httpStatusCode.equals(HttpStatus.UNAUTHORIZED)
+			|| httpStatusCode.equals(HttpStatus.TOO_MANY_REQUESTS);
+	}
 }
