@@ -1,7 +1,9 @@
 package com.miguelbf.exchangerateapi.model.clients.exchangerates;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(name = "Currency", description = "ISO 4217 currency code", enumAsRef = true)
 @JsonFormat(shape = JsonFormat.Shape.STRING)
 public enum Currency {
     // https://api.exchangerate.host/list?access_key=

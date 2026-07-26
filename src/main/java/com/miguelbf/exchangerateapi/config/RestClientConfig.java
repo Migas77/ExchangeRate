@@ -17,41 +17,41 @@ import org.springframework.web.util.UriBuilder;
 @Configuration
 public class RestClientConfig {
 
-    private final ExchangeRatesClientProperties exchangeRatesClientProperties;
+	private final ExchangeRatesClientProperties exchangeRatesClientProperties;
 
-    public RestClientConfig(ExchangeRatesClientProperties exchangeRatesClientProperties) {
-        this.exchangeRatesClientProperties = exchangeRatesClientProperties;
-    }
+	public RestClientConfig(ExchangeRatesClientProperties exchangeRatesClientProperties) {
+		this.exchangeRatesClientProperties = exchangeRatesClientProperties;
+	}
 
-    @Bean
-    public RestClient getExchangeRatesRestClient(ObjectProvider<RestClient.Builder> builderProvider) {
-        RestClient.Builder builder = builderProvider.getIfAvailable(() -> {
-            HttpClientSettings settings = HttpClientSettings.defaults();
-            ClientHttpRequestFactory requestFactory = ClientHttpRequestFactoryBuilder.httpComponents().build(settings);
-            return RestClient.builder().requestFactory(requestFactory);
-        });
+	private static DefaultUriBuilderFactory createAccessKeyUriBuilderFactory(String baseUrl, String accessKey) {
+		return new DefaultUriBuilderFactory(baseUrl) {
+			@Override
+			public @NonNull UriBuilder uriString(@NonNull String uriTemplate) {
+				return super.uriString(uriTemplate).queryParam("access_key", accessKey);
+			}
 
-        String baseUrl = exchangeRatesClientProperties.getBaseUrl();
-        String accessKey = exchangeRatesClientProperties.getAccessKey();
+			@Override
+			public @NonNull UriBuilder builder() {
+				return super.builder().queryParam("access_key", accessKey);
+			}
+		};
+	}
 
-        return builder
-            .uriBuilderFactory(createAccessKeyUriBuilderFactory(baseUrl, accessKey))
-            .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-            .build();
-    }
+	@Bean
+	public RestClient getExchangeRatesRestClient(ObjectProvider<RestClient.Builder> builderProvider) {
+		RestClient.Builder builder = builderProvider.getIfAvailable(() -> {
+			HttpClientSettings settings = HttpClientSettings.defaults();
+			ClientHttpRequestFactory requestFactory = ClientHttpRequestFactoryBuilder.httpComponents().build(settings);
+			return RestClient.builder().requestFactory(requestFactory);
+		});
 
-    private static DefaultUriBuilderFactory createAccessKeyUriBuilderFactory(String baseUrl, String accessKey) {
-        return new DefaultUriBuilderFactory(baseUrl) {
-            @Override
-            public @NonNull UriBuilder uriString(@NonNull String uriTemplate) {
-                return super.uriString(uriTemplate).queryParam("access_key", accessKey);
-            }
+		String baseUrl = exchangeRatesClientProperties.getBaseUrl();
+		String accessKey = exchangeRatesClientProperties.getAccessKey();
 
-            @Override
-            public @NonNull UriBuilder builder() {
-                return super.builder().queryParam("access_key", accessKey);
-            }
-        };
-    }
+		return builder
+			.uriBuilderFactory(createAccessKeyUriBuilderFactory(baseUrl, accessKey))
+			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+			.build();
+	}
 
 }
