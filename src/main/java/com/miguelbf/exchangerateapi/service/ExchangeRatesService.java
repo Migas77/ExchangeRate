@@ -30,10 +30,7 @@ public class ExchangeRatesService implements IExchangeRatesService {
 		if (!from.equals(source)) {
 			throw new RatesUpstreamDataException.UnexpectedSource(
 				"Expected source currency %s, got %s".formatted(from, source), from, to, liveRates);
-		} else if (quotes.isEmpty()) {
-            throw new RatesUpstreamDataException.UnexpectedQuoteCount(
-                "Expected at least 1 quote from %s".formatted(from), from, null, liveRates);
-        } else if (to != null) {
+		} else if (to != null) {
 			if (quotes.size() != 1) {
 				throw new RatesUpstreamDataException.UnexpectedQuoteCount(
 					"Expected 1 quote from %s to %s, got %s".formatted(from, to, quotes.size()), from, to, liveRates);
@@ -41,6 +38,9 @@ public class ExchangeRatesService implements IExchangeRatesService {
 				throw new RatesUpstreamDataException.UnexpectedTarget(
 					"Expected 1 quote from %s to %s, got other %s".formatted(from, to, quotes.size()), from, to, liveRates);
 			}
+		} else if (quotes.size() <= 1){
+			throw new RatesUpstreamDataException.UnexpectedQuoteCount(
+				"Expected multiple quotes from %s to %s, got %s".formatted(from, null, quotes.size()), from, null, liveRates);
 		}
 
 		return new RatesResponse(liveRates.getTimestamp(), source, quotes);
