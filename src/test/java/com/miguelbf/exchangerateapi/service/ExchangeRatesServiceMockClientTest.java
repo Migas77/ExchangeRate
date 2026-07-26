@@ -30,10 +30,10 @@ class ExchangeRatesServiceMockClientTest {
     void whenValidBaseCurrencyWithoutTarget_thenReturnAllRates() {
         LiveRates liveRates = new LiveRates(
             1L, Currency.USD, Map.of(
-                "USDEUR", new BigDecimal("0.85"),
-                "USDGBP", new BigDecimal("0.74"),
-                "USDJPY", new BigDecimal("158.74")
-            )
+            "USDEUR", new BigDecimal("0.85"),
+            "USDGBP", new BigDecimal("0.74"),
+            "USDJPY", new BigDecimal("158.74")
+        )
         );
         when(exchangeRatesClientService.getLiveRates(Currency.USD, null)).thenReturn(liveRates);
 
@@ -49,8 +49,8 @@ class ExchangeRatesServiceMockClientTest {
     void whenValidBaseCurrencyWithTarget_thenReturnCorrectRate() {
         LiveRates liveRates = new LiveRates(
             1L, Currency.USD, Map.of(
-                "USDEUR", new BigDecimal("0.85")
-            )
+            "USDEUR", new BigDecimal("0.85")
+        )
         );
         when(exchangeRatesClientService.getLiveRates(Currency.USD, Currency.EUR)).thenReturn(liveRates);
 

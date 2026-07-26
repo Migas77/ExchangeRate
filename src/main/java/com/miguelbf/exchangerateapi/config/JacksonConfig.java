@@ -10,17 +10,17 @@ import tools.jackson.databind.cfg.EnumFeature;
 @Configuration
 public class JacksonConfig {
 
-	@Bean
-	public JsonMapperBuilderCustomizer jsonConfig() {
-		return builder -> builder
-			.changeDefaultNullHandling(handler -> handler
-				// override with @JsonSetter
-				.withValueNulls(Nulls.FAIL)
-				.withContentNulls(Nulls.FAIL)
-			)
-			.configure(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS, true)
-			.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true)
-			.configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, true)
-			;
-	}
+    @Bean
+    public JsonMapperBuilderCustomizer jsonConfig() {
+        return builder -> builder
+            .changeDefaultNullHandling(handler -> handler
+                // override with @JsonSetter
+                .withValueNulls(Nulls.FAIL)
+                .withContentNulls(Nulls.FAIL)
+            )
+            .configure(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS, true)
+            .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true)
+            .configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, true)
+            ;
+    }
 }

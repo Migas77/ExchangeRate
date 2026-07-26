@@ -10,8 +10,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties({ApplicationProperties.class, ExchangeRatesClientProperties.class})
 public class ExchangeRateApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ExchangeRateApiApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ExchangeRateApiApplication.class, args);
+    }
 
 }

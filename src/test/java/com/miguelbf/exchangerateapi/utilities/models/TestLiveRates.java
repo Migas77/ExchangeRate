@@ -11,23 +11,23 @@ import java.util.Map;
 
 public class TestLiveRates extends LiveRates {
 
-	@JsonIgnore
-	private final Map<String, BigDecimal> rawQuotes;
+    @JsonIgnore
+    private final Map<String, BigDecimal> rawQuotes;
 
-	@JsonCreator
-	public TestLiveRates(
-		@JsonProperty(value = "timestamp", required = true) long timestamp,
-		@JsonProperty(value = "source", required = true) Currency source,
-		@JsonProperty(value = "quotes", required = true) Map<String, BigDecimal> rawQuotes
-	) {
-		super(timestamp, source, rawQuotes);
-		this.rawQuotes = rawQuotes;
-	}
+    @JsonCreator
+    public TestLiveRates(
+        @JsonProperty(value = "timestamp", required = true) long timestamp,
+        @JsonProperty(value = "source", required = true) Currency source,
+        @JsonProperty(value = "quotes", required = true) Map<String, BigDecimal> rawQuotes
+    ) {
+        super(timestamp, source, rawQuotes);
+        this.rawQuotes = rawQuotes;
+    }
 
-	// Override serialization so "quotes" writes the raw map instead of the transformed one
-	@JsonProperty("quotes")
-	public Map<String, BigDecimal> getRawQuotes() {
-		return rawQuotes;
-	}
+    // Override serialization so "quotes" writes the raw map instead of the transformed one
+    @JsonProperty("quotes")
+    public Map<String, BigDecimal> getRawQuotes() {
+        return rawQuotes;
+    }
 
 }

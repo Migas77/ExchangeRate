@@ -8,21 +8,21 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 public record RatesResponse(
-	@Schema(description = "Unix timestamp of when rates were fetched", example = "1690300800")
-	@JsonProperty(required = true) long timestamp,
+    @Schema(description = "Unix timestamp of when rates were fetched", example = "1690300800")
+    @JsonProperty(required = true) long timestamp,
 
-	@Schema(description = "Base currency the rates are relative to")
-	@JsonProperty(required = true) Currency source,
+    @Schema(description = "Base currency the rates are relative to")
+    @JsonProperty(required = true) Currency source,
 
-	@Schema(
-		description = "Map of currency code to exchange rate value",
-		example = """
-			{
-			  "USD": 0.27,
-			  "EUR": 0.25
-			}
-			"""
-	)
-	@JsonProperty(required = true) Map<Currency, BigDecimal> rates
+    @Schema(
+        description = "Map of currency code to exchange rate value",
+        example = """
+            {
+              "USD": 0.27,
+              "EUR": 0.25
+            }
+            """
+    )
+    @JsonProperty(required = true) Map<Currency, BigDecimal> rates
 ) {
 }

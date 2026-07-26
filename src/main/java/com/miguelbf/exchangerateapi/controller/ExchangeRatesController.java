@@ -19,35 +19,35 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Rates", description = "Provides currency exchange rates valid with up to a minute of delay")
 public class ExchangeRatesController {
 
-	private final IExchangeRatesService exchangeRatesService;
+    private final IExchangeRatesService exchangeRatesService;
 
-	public ExchangeRatesController(IExchangeRatesService exchangeRatesService) {
-		this.exchangeRatesService = exchangeRatesService;
-	}
+    public ExchangeRatesController(IExchangeRatesService exchangeRatesService) {
+        this.exchangeRatesService = exchangeRatesService;
+    }
 
-	@Operation(
-		summary = "Get currency exchange rates",
-		description = """
-			Returns most recent exchange rates from the specified `source` currency. \
-			By default, rates are returned against all supported currencies. You may optionally specify a
-			`target` currency to restrict the response to a single target currency."""
-	)
-	@ApiResponses(
-		@ApiResponse(
-			responseCode = "200",
-			description = "Latest, but **possibly cached** rates snapshot. Inspect `timestamp` to determine freshness of `rates`."
-		)
-	)
-	@GetMapping
-	@ResponseStatus(HttpStatus.OK)
-	public RatesResponse getExchangeRates(
-		@Parameter(description = "Source (base) currency to which all `rates` are relative", required = true)
-		@RequestParam(required = true) Currency source,
+    @Operation(
+        summary = "Get currency exchange rates",
+        description = """
+            Returns most recent exchange rates from the specified `source` currency. \
+            By default, rates are returned against all supported currencies. You may optionally specify a
+            `target` currency to restrict the response to a single target currency."""
+    )
+    @ApiResponses(
+        @ApiResponse(
+            responseCode = "200",
+            description = "Latest, but **possibly cached** rates snapshot. Inspect `timestamp` to determine freshness of `rates`."
+        )
+    )
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public RatesResponse getExchangeRates(
+        @Parameter(description = "Source (base) currency to which all `rates` are relative", required = true)
+        @RequestParam(required = true) Currency source,
 
-		@Parameter(description = "Target currency to which all `rates` are relative")
-		@RequestParam(required = false) @Nullable Currency target
-	) {
-		return this.exchangeRatesService.getRates(source, target);
-	}
+        @Parameter(description = "Target currency to which all `rates` are relative")
+        @RequestParam(required = false) @Nullable Currency target
+    ) {
+        return this.exchangeRatesService.getRates(source, target);
+    }
 
 }

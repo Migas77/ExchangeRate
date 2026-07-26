@@ -17,41 +17,41 @@ import org.springframework.web.util.UriBuilder;
 @Configuration
 public class RestClientConfig {
 
-	private final ExchangeRatesClientProperties exchangeRatesClientProperties;
+    private final ExchangeRatesClientProperties exchangeRatesClientProperties;
 
-	public RestClientConfig(ExchangeRatesClientProperties exchangeRatesClientProperties) {
-		this.exchangeRatesClientProperties = exchangeRatesClientProperties;
-	}
+    public RestClientConfig(ExchangeRatesClientProperties exchangeRatesClientProperties) {
+        this.exchangeRatesClientProperties = exchangeRatesClientProperties;
+    }
 
-	private static DefaultUriBuilderFactory createAccessKeyUriBuilderFactory(String baseUrl, String accessKey) {
-		return new DefaultUriBuilderFactory(baseUrl) {
-			@Override
-			public @NonNull UriBuilder uriString(@NonNull String uriTemplate) {
-				return super.uriString(uriTemplate).queryParam("access_key", accessKey);
-			}
+    private static DefaultUriBuilderFactory createAccessKeyUriBuilderFactory(String baseUrl, String accessKey) {
+        return new DefaultUriBuilderFactory(baseUrl) {
+            @Override
+            public @NonNull UriBuilder uriString(@NonNull String uriTemplate) {
+                return super.uriString(uriTemplate).queryParam("access_key", accessKey);
+            }
 
-			@Override
-			public @NonNull UriBuilder builder() {
-				return super.builder().queryParam("access_key", accessKey);
-			}
-		};
-	}
+            @Override
+            public @NonNull UriBuilder builder() {
+                return super.builder().queryParam("access_key", accessKey);
+            }
+        };
+    }
 
-	@Bean
-	public RestClient getExchangeRatesRestClient(ObjectProvider<RestClient.Builder> builderProvider) {
-		RestClient.Builder builder = builderProvider.getIfAvailable(() -> {
-			HttpClientSettings settings = HttpClientSettings.defaults();
-			ClientHttpRequestFactory requestFactory = ClientHttpRequestFactoryBuilder.httpComponents().build(settings);
-			return RestClient.builder().requestFactory(requestFactory);
-		});
+    @Bean
+    public RestClient getExchangeRatesRestClient(ObjectProvider<RestClient.Builder> builderProvider) {
+        RestClient.Builder builder = builderProvider.getIfAvailable(() -> {
+            HttpClientSettings settings = HttpClientSettings.defaults();
+            ClientHttpRequestFactory requestFactory = ClientHttpRequestFactoryBuilder.httpComponents().build(settings);
+            return RestClient.builder().requestFactory(requestFactory);
+        });
 
-		String baseUrl = exchangeRatesClientProperties.getBaseUrl();
-		String accessKey = exchangeRatesClientProperties.getAccessKey();
+        String baseUrl = exchangeRatesClientProperties.getBaseUrl();
+        String accessKey = exchangeRatesClientProperties.getAccessKey();
 
-		return builder
-			.uriBuilderFactory(createAccessKeyUriBuilderFactory(baseUrl, accessKey))
-			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-			.build();
-	}
+        return builder
+            .uriBuilderFactory(createAccessKeyUriBuilderFactory(baseUrl, accessKey))
+            .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+            .build();
+    }
 
 }

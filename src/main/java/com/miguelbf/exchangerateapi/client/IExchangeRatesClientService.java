@@ -6,6 +6,6 @@ import org.jspecify.annotations.Nullable;
 
 public interface IExchangeRatesClientService {
 
-	LiveRates getLiveRates(Currency source, @Nullable Currency target);
+    LiveRates getLiveRates(Currency source, @Nullable Currency target);
 
 }

@@ -61,8 +61,8 @@ class ExchangeRatesControllerMockServiceTest {
         mockMvc
             .perform(
                 get("/api/rates")
-	                .queryParam("source", Currency.USD.name())
-	                .queryParam("target", Currency.EUR.name())
+                    .queryParam("source", Currency.USD.name())
+                    .queryParam("target", Currency.EUR.name())
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isInternalServerError())
             .andExpect(jsonPath("$.instance", is("/api/rates")))
@@ -85,8 +85,8 @@ class ExchangeRatesControllerMockServiceTest {
         mockMvc
             .perform(
                 get("/api/rates")
-                .queryParam("source", Currency.USD.name())
-                .contentType(MediaType.APPLICATION_JSON))
+                    .queryParam("source", Currency.USD.name())
+                    .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.timestamp", is(1)))
             .andExpect(jsonPath("$.source", is(Currency.USD.name())))
@@ -107,9 +107,9 @@ class ExchangeRatesControllerMockServiceTest {
         mockMvc
             .perform(
                 get("/api/rates")
-                .queryParam("source", Currency.EUR.name())
-                .queryParam("target", Currency.EUR.name())
-                .contentType(MediaType.APPLICATION_JSON))
+                    .queryParam("source", Currency.EUR.name())
+                    .queryParam("target", Currency.EUR.name())
+                    .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.timestamp", is(1)))
             .andExpect(jsonPath("$.source", is(Currency.EUR.name())))
@@ -119,14 +119,14 @@ class ExchangeRatesControllerMockServiceTest {
         verify(exchangeRatesService, times(1)).getRates(Currency.EUR, Currency.EUR);
     }
 
-    @ParameterizedTest( name = "[{index}] from={0} to={1}")
+    @ParameterizedTest(name = "[{index}] from={0} to={1}")
     @MethodSource("invalidQueryParams")
     void whenInvalidQueryParameters_thenStatusBadRequestAndReturnProblemDetail(Object from, Object to) throws Exception {
         // Default Problem Detail handled by Spring
 
         MockHttpServletRequestBuilder request = get("/api/rates").contentType(MediaType.APPLICATION_JSON);
-		if (from != null) request = request.queryParam("source", from.toString());
-		if (to != null) request = request.queryParam("target", to.toString());
+        if (from != null) request = request.queryParam("source", from.toString());
+        if (to != null) request = request.queryParam("target", to.toString());
 
         mockMvc
             .perform(request)
@@ -136,15 +136,15 @@ class ExchangeRatesControllerMockServiceTest {
             .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
             .andExpect(jsonPath("$.detail", not(emptyOrNullString())));
 
-        verify(exchangeRatesService, never()).getRates(any(),any());
+        verify(exchangeRatesService, never()).getRates(any(), any());
     }
 
 
     private static Stream<Arguments> invalidQueryParams() {
         List<Object> validFroms = List.of(Currency.USD);
-        List<Object> validTos   = List.of(Currency.EUR);
+        List<Object> validTos = List.of(Currency.EUR);
         List<Object> invalidFroms = Arrays.asList(null, "null", "zzz", 1, "%s,%s".formatted(Currency.USD, Currency.EUR));
-        List<Object> invalidTos   = Arrays.asList("null", "zzz", 1, "%s,%s".formatted(Currency.USD, Currency.EUR));
+        List<Object> invalidTos = Arrays.asList("null", "zzz", 1, "%s,%s".formatted(Currency.USD, Currency.EUR));
 
         Stream<Arguments> invalidFromWithValidTo = ArgumentCombinations.allCombinations(invalidFroms, validTos);
         Stream<Arguments> validFromWithInvalidTo = ArgumentCombinations.allCombinations(validFroms, invalidTos);

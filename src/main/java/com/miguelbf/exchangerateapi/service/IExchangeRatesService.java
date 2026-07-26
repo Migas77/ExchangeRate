@@ -7,6 +7,6 @@ import org.jspecify.annotations.Nullable;
 
 public interface IExchangeRatesService {
 
-	RatesResponse getRates(Currency source, @Nullable Currency target);
+    RatesResponse getRates(Currency source, @Nullable Currency target);
 
 }

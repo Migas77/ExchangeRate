@@ -6,9 +6,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class ExchangeRateApiApplicationTests {
 
-	@Test
-	void contextLoads() {
-		// empty placeholder method
-	}
+    @Test
+    void contextLoads() {
+        // empty placeholder method
+    }
 
 }

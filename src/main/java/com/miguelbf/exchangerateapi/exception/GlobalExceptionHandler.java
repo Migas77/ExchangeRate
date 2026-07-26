@@ -18,26 +18,26 @@ import java.net.URI;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-	@ExceptionHandler(Exception.class)
-	@ApiResponse(
-		responseCode = "500",
-		description = "Internal Server Error.",
-		content = @Content(
-			schema = @Schema(implementation = ProblemDetail.class),
-			mediaType = "application/problem+json",
-			examples = @ExampleObject(
-				value = """
-					{
-					  "type": "about:blank",
-					  "title": "Internal Server Error",
-					  "status": 500,
-					  "detail": "An unexpected error occurred. Please try again later.",
-					  "instance": "/api/rates"
-					}
-					"""
-			)
-		)
-	)
+    @ExceptionHandler(Exception.class)
+    @ApiResponse(
+        responseCode = "500",
+        description = "Internal Server Error.",
+        content = @Content(
+            schema = @Schema(implementation = ProblemDetail.class),
+            mediaType = "application/problem+json",
+            examples = @ExampleObject(
+                value = """
+                    {
+                      "type": "about:blank",
+                      "title": "Internal Server Error",
+                      "status": 500,
+                      "detail": "An unexpected error occurred. Please try again later.",
+                      "instance": "/api/rates"
+                    }
+                    """
+            )
+        )
+    )
     public ProblemDetail handleGeneric(Exception ex, HttpServletRequest request) {
         // Safeline method - Catch-all handler which prevents unhandled exceptions from leaking stack traces
         // although spring.web.error.include-stacktrace=never is set in application.properties

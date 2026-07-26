@@ -17,12 +17,12 @@ import org.springframework.validation.annotation.Validated;
 @Setter
 public class ExchangeRatesClientProperties {
 
-	@NotBlank
-	@URL
-	private String baseUrl;
+    @NotBlank
+    @URL
+    private String baseUrl;
 
-	@NotBlank
-	@Length(min = 32, max = 32)
-	private String accessKey;
+    @NotBlank
+    @Length(min = 32, max = 32)
+    private String accessKey;
 
 }

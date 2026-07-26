@@ -15,8 +15,8 @@ import org.springframework.validation.annotation.Validated;
 @Setter
 public class ApplicationProperties {
 
-	@NotBlank
-	@Pattern(regexp = "^\\d+\\.\\d+\\.\\d+$", message = "Version must match format vX.Y.Z (e.g. 1.2.3)")
-	private String version;
+    @NotBlank
+    @Pattern(regexp = "^\\d+\\.\\d+\\.\\d+$", message = "Version must match format vX.Y.Z (e.g. 1.2.3)")
+    private String version;
 
 }
