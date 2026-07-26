@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
-class ExchangeRatesServiceMockRepoTest {
+class ExchangeRatesServiceMockClientTest {
 
     @InjectMocks
     ExchangeRatesService exchangeRatesService;

@@ -1,6 +1,7 @@
 package com.miguelbf.exchangerateapi.config;
 
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
 import org.springframework.boot.http.client.HttpClientSettings;
 import org.springframework.context.annotation.Bean;
@@ -23,16 +24,18 @@ public class RestClientConfig {
     }
 
     @Bean
-    public RestClient getExchangeRatesRestClient(RestClient.Builder builder) {
-        HttpClientSettings settings = HttpClientSettings.defaults();
-        ClientHttpRequestFactory requestFactory = ClientHttpRequestFactoryBuilder.httpComponents().build(settings);
+    public RestClient getExchangeRatesRestClient(ObjectProvider<RestClient.Builder> builderProvider) {
+        RestClient.Builder builder = builderProvider.getIfAvailable(() -> {
+            HttpClientSettings settings = HttpClientSettings.defaults();
+            ClientHttpRequestFactory requestFactory = ClientHttpRequestFactoryBuilder.httpComponents().build(settings);
+            return RestClient.builder().requestFactory(requestFactory);
+        });
 
         String baseUrl = exchangeRatesClientProperties.getBaseUrl();
         String accessKey = exchangeRatesClientProperties.getAccessKey();
 
         return builder
             .uriBuilderFactory(createAccessKeyUriBuilderFactory(baseUrl, accessKey))
-            .requestFactory(requestFactory)
             .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
             .build();
     }
