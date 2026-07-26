@@ -25,7 +25,6 @@ import org.springframework.test.web.client.response.DefaultResponseCreator;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.exc.ValueInstantiationException;
 
 import java.math.BigDecimal;
 import java.net.URI;
