@@ -5,6 +5,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
 import org.springframework.boot.http.client.HttpClientSettings;
+import org.springframework.boot.restclient.RestClientCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -39,14 +40,14 @@ public class RestClientConfig {
     }
 
     @Bean
-    public RestClient getExchangeRatesRestClient(ObjectProvider<RestClient.Builder> builderProvider) {
-        RestClient.Builder builder = builderProvider.getIfAvailable(() -> {
-            HttpClientSettings settings = HttpClientSettings.defaults()
-                .withConnectTimeout(exchangeRatesClientProperties.getConnectTimeout())
-                .withReadTimeout(exchangeRatesClientProperties.getReadTimeout());
-            ClientHttpRequestFactory requestFactory = ClientHttpRequestFactoryBuilder.httpComponents().build(settings);
-            return RestClient.builder().requestFactory(requestFactory);
-        });
+    public RestClient getExchangeRatesRestClient(ObjectProvider<RestClientCustomizer> customizers) {
+        HttpClientSettings settings = HttpClientSettings.defaults()
+            .withConnectTimeout(exchangeRatesClientProperties.getConnectTimeout())
+            .withReadTimeout(exchangeRatesClientProperties.getReadTimeout());
+        ClientHttpRequestFactory requestFactory = ClientHttpRequestFactoryBuilder.httpComponents().build(settings);
+
+        RestClient.Builder builder = RestClient.builder().requestFactory(requestFactory);
+        customizers.orderedStream().forEach(customizer -> customizer.customize(builder));
 
         String baseUrl = exchangeRatesClientProperties.getBaseUrl();
         String accessKey = exchangeRatesClientProperties.getAccessKey();
