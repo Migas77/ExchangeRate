@@ -1,7 +1,7 @@
 package com.miguelbf.exchangerateapi;
 
-import com.miguelbf.exchangerateapi.config.ApplicationProperties;
-import com.miguelbf.exchangerateapi.config.ExchangeRatesClientProperties;
+import com.miguelbf.exchangerateapi.config.properties.ApplicationProperties;
+import com.miguelbf.exchangerateapi.config.properties.ExchangeRatesClientProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

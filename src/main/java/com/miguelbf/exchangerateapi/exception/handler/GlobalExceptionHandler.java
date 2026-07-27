@@ -1,4 +1,4 @@
-package com.miguelbf.exchangerateapi.exception;
+package com.miguelbf.exchangerateapi.exception.handler;
 
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;

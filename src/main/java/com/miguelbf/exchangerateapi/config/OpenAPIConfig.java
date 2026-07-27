@@ -1,5 +1,6 @@
 package com.miguelbf.exchangerateapi.config;
 
+import com.miguelbf.exchangerateapi.config.properties.ApplicationProperties;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.examples.Example;

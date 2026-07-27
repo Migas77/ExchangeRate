@@ -1,4 +1,4 @@
-package com.miguelbf.exchangerateapi.exception;
+package com.miguelbf.exchangerateapi.exception.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpMethod;

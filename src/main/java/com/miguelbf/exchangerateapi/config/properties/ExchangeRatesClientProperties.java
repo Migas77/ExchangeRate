@@ -1,4 +1,4 @@
-package com.miguelbf.exchangerateapi.config;
+package com.miguelbf.exchangerateapi.config.properties;
 
 
 import jakarta.validation.constraints.NotBlank;

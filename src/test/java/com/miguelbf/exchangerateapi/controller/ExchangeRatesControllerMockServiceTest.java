@@ -1,6 +1,6 @@
 package com.miguelbf.exchangerateapi.controller;
 
-import com.miguelbf.exchangerateapi.exception.GlobalExceptionHandler;
+import com.miguelbf.exchangerateapi.exception.handler.GlobalExceptionHandler;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
 import com.miguelbf.exchangerateapi.service.IExchangeRatesService;

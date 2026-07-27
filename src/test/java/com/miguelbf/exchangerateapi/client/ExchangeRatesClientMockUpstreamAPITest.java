@@ -1,8 +1,8 @@
 package com.miguelbf.exchangerateapi.client;
 
-import com.miguelbf.exchangerateapi.config.ExchangeRatesClientProperties;
+import com.miguelbf.exchangerateapi.config.properties.ExchangeRatesClientProperties;
 import com.miguelbf.exchangerateapi.config.RestClientConfig;
-import com.miguelbf.exchangerateapi.exception.RatesUpstreamAPIException;
+import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamAPIException;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.*;
 import com.miguelbf.exchangerateapi.utilities.models.TestLiveRates;
 import org.jspecify.annotations.Nullable;

@@ -1,7 +1,7 @@
 package com.miguelbf.exchangerateapi.service;
 
 import com.miguelbf.exchangerateapi.client.IExchangeRatesClientService;
-import com.miguelbf.exchangerateapi.exception.RatesUpstreamDataException;
+import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamDataException;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.LiveRates;
 import com.miguelbf.exchangerateapi.model.dto.RatesResponse;

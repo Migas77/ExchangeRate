@@ -1,6 +1,6 @@
 package com.miguelbf.exchangerateapi.client;
 
-import com.miguelbf.exchangerateapi.exception.RatesUpstreamAPIException;
+import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamAPIException;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.ExchangeRateApiSuccess;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.LiveRates;

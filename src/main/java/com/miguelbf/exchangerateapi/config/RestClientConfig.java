@@ -1,5 +1,6 @@
 package com.miguelbf.exchangerateapi.config;
 
+import com.miguelbf.exchangerateapi.config.properties.ExchangeRatesClientProperties;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;

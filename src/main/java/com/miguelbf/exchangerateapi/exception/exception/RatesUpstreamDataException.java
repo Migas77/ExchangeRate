@@ -1,4 +1,4 @@
-package com.miguelbf.exchangerateapi.exception;
+package com.miguelbf.exchangerateapi.exception.exception;
 
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.LiveRates;
