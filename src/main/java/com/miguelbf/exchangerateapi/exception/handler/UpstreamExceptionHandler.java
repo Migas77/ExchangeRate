@@ -51,4 +51,40 @@ public class UpstreamExceptionHandler extends ResponseEntityExceptionHandler {
         return ProblemDetails.of(httpStatus, detail, request);
     }
 
+    @ExceptionHandler(RatesUpstreamAPIException.class)
+    public ProblemDetail handleRatesUpstreamBadGatewayException(
+        RatesUpstreamAPIException ex, HttpServletRequest request
+    ) {
+        HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
+        String detail = "The upstream service returned an invalid response. Please try again later.";
+        String message = switch (ex) {
+            case RatesUpstreamAPIException.DocumentedHttpError documentedHttpError ->
+                "Upstream returned documented http error";
+            case RatesUpstreamAPIException.UnexpectedHttpError unexpectedHttpError ->
+                "Upstream returned unexpected http error";
+            case RatesUpstreamAPIException.UnexpectedEmptyResponse unexpectedEmptyResponse ->
+                "Upstream returned unexpected empty response body";
+        };
+        log.atError().setMessage(message).setCause(ex).log();
+        return ProblemDetails.of(httpStatus, detail, request);
+    }
+
+    @ExceptionHandler(RatesUpstreamDataException.class)
+    public ProblemDetail handleRatesUpstreamDataException(
+        RatesUpstreamDataException ex, HttpServletRequest request
+    ) {
+        HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
+        String detail = "The upstream service returned incoherent domain data. Please try again later.";
+        String message = switch (ex) {
+            case RatesUpstreamDataException.UnexpectedSource unexpectedSource ->
+                "Upstream returned unexpected source currency";
+            case RatesUpstreamDataException.UnexpectedTarget unexpectedTarget ->
+                "Upstream returned unexpected target currency";
+            case RatesUpstreamDataException.UnexpectedQuoteCount unexpectedQuoteCount ->
+                "Upstream returned unexpected quote count";
+        };
+        log.atError().setMessage(message).setCause(ex).log();
+        return ProblemDetails.of(httpStatus, detail, request);
+    }
+
 }
