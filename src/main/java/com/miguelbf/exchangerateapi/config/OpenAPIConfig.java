@@ -64,25 +64,34 @@ public class OpenAPIConfig {
                 .content(new Content().addMediaType("application/problem+json",
                     new MediaType()
                         .schema(new Schema<>().$ref("#/components/schemas/ProblemDetail"))
-                        .addExamples("BadRequestExample", new Example()
+                        .addExamples("Invalid Source Field", new Example()
                             .value("""
                                 {
-                                  "type": "about:blank",
                                   "title": "Bad Request",
                                   "status": 400,
                                   "detail": "Failed to convert 'source' with value: 'null'",
                                   "instance": "/api/rates"
                                 }
                                 """)
-                        )
-                )));
+                        ).addExamples("Missing Source Field", new Example()
+                            .value("""
+                                {
+                                  "title": "Bad Request",
+                                  "status": 400,
+                                  "detail": "Required parameter 'source' is not present.",
+                                  "instance": "/api/rates"
+                                }
+                                """
+
+                            )
+                        ))));
 
             responses.addApiResponse("500", new ApiResponse()
                 .description("Internal Server Error.")
                 .content(new Content().addMediaType("application/problem+json",
                     new MediaType()
                         .schema(new Schema<>().$ref("#/components/schemas/ProblemDetail"))
-                        .addExamples("InternalServerErrorExample", new Example()
+                        .addExamples("Internal Server Error", new Example()
                             .value("""
                                 {
                                   "type": "about:blank",

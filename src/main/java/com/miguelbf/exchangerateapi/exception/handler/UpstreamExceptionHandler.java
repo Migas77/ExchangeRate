@@ -3,6 +3,11 @@ package com.miguelbf.exchangerateapi.exception.handler;
 import com.miguelbf.exchangerateapi.exception.ProblemDetails;
 import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamAPIException;
 import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamDataException;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -22,7 +27,80 @@ import java.net.UnknownHostException;
 @Slf4j
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@ApiResponses(value = {
+    @ApiResponse(
+        responseCode = "502",
+        description = "Bad Gateway.",
+        content = @Content(
+            schema = @Schema(implementation = ProblemDetail.class),
+            mediaType = "application/problem+json",
+            examples = {
+                @ExampleObject(
+                    name = "Upstream Unreachable",
+                    description = "The upstream service could not be reached (e.g. connection refused).",
+                    value = """
+                        {
+                          "type": "about:blank",
+                          "title": "Bad Gateway",
+                          "status": 502,
+                          "detail": "The upstream service is currently unreachable. Please try again later.",
+                          "instance": "/api/rates"
+                        }
+                        """
+                ),
+                @ExampleObject(
+                    name = "Upstream Invalid response",
+                    description = "The upstream service returned an unexpected or malformed HTTP response.",
+                    value = """
+                        {
+                          "type": "about:blank",
+                          "title": "Bad Gateway",
+                          "status": 502,
+                          "detail": "The upstream service returned an invalid response. Please try again later.",
+                          "instance": "/api/rates"
+                        }
+                        """
+                ),
+                @ExampleObject(
+                    name = "Upstream Incoherent Data",
+                    description = "The upstream service returned domain data that is inconsistent with the request.",
+                    value = """
+                        {
+                          "type": "about:blank",
+                          "title": "Bad Gateway",
+                          "status": 502,
+                          "detail": "The upstream service returned incoherent domain data. Please try again later.",
+                          "instance": "/api/rates"
+                        }
+                        """
+                )
+            }
+        )
+    ),
+    @ApiResponse(
+        responseCode = "504",
+        description = "Gateway Timeout.",
+        content = @Content(
+            schema = @Schema(implementation = ProblemDetail.class),
+            mediaType = "application/problem+json",
+            examples = @ExampleObject(
+                name = "Upstream Service Timeout",
+                description = "The upstream service did not respond within the configured timeout.",
+                value = """
+                    {
+                      "type": "about:blank",
+                      "title": "Gateway Timeout",
+                      "status": 504,
+                      "detail": "The upstream service did not respond in time. Please try again later.",
+                      "instance": "/api/rates"
+                    }
+                    """
+            )
+        )
+    )
+})
 public class UpstreamExceptionHandler extends ResponseEntityExceptionHandler {
+
 
     @ExceptionHandler(ResourceAccessException.class)
     public ProblemDetail handleResourceAccessException(
