@@ -133,7 +133,7 @@ public class UpstreamExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(RatesUpstreamAPIException.class)
-    public ProblemDetail handleRatesUpstreamBadGatewayException(
+    public ProblemDetail handleRatesUpstreamApiException(
         RatesUpstreamAPIException ex, HttpServletRequest request
     ) {
         HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;

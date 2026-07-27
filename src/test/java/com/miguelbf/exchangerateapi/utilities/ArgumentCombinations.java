@@ -10,6 +10,9 @@ import java.util.stream.Stream;
 
 public class ArgumentCombinations {
 
+    private ArgumentCombinations() {
+    }
+
     public static Stream<Arguments> allCombinations(List<?>... lists) {
         return Arrays.stream(lists)
             .reduce(
