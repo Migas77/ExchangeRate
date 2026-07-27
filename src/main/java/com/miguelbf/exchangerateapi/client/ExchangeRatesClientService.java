@@ -45,16 +45,16 @@ public class ExchangeRatesClientService implements IExchangeRatesClientService {
 
                 if (this.isDocumentedHttpErrorStatusCode(httpStatusCode)) {
                     throw new RatesUpstreamAPIException.DocumentedHttpError(
-                        "Documented error on %s %s".formatted(method, url), response.createException(), url, method);
+                        "Documented error on %s %s".formatted(method, url.getPath()), response.createException(), url, method);
                 } else if (!httpStatusCode.equals(HttpStatus.OK)) {
                     throw new RatesUpstreamAPIException.UnexpectedHttpError(
-                        "Unexpected error on %s %s".formatted(method, url), response.createException(), url, method);
+                        "Unexpected error on %s %s".formatted(method, url.getPath()), response.createException(), url, method);
                 }
 
                 ExchangeRateApiSuccess<LiveRates> body = response.bodyTo(LIVE_RATES_SUCCESS_TYPE);
                 if (body == null) {
                     throw new RatesUpstreamAPIException.UnexpectedEmptyResponse(
-                        "Empty response body on %s %s".formatted(method, url), response.createException(), url, method);
+                        "Empty response body on %s %s".formatted(method, url.getPath()), response.createException(), url, method);
                 }
 
                 return body;

@@ -1,12 +1,15 @@
 package com.miguelbf.exchangerateapi.exception.exception;
 
+import com.miguelbf.exchangerateapi.config.logging.CustomLogStructureFields;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpMethod;
 
 import java.net.URI;
+import java.util.Map;
 
 @Getter
-public abstract sealed class RatesUpstreamAPIException extends RuntimeException {
+public abstract sealed class RatesUpstreamAPIException extends RuntimeException implements CustomLogStructureFields {
 
     private final URI url;
     private final HttpMethod method;
@@ -15,6 +18,14 @@ public abstract sealed class RatesUpstreamAPIException extends RuntimeException 
         super(message, cause);
         this.url = url;
         this.method = method;
+    }
+
+    @Override
+    public Map<String, @Nullable Object> getLogStructureFields() {
+        return Map.of(
+            "url", this.url,
+            "method", this.method
+        );
     }
 
     @Getter
