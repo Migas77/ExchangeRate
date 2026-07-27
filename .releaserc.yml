@@ -17,7 +17,7 @@ plugins:
   - - "@semantic-release/changelog"
     - changelogFile: "CHANGELOG.md"
   - - "@semantic-release/exec"
-    - prepareCmd: "mvn -B versions:set -DnewVersion=${nextRelease.version} -DgenerateBackupPoms=false && mvn -B clean package -DskipTests"
+    - prepareCmd: "mvn -B versions:set -DnewVersion=${nextRelease.version} -DgenerateBackupPoms=false && mvn -B clean verify -Dgenerate-openapi -DskipTests"
   - - "@semantic-release/git"
     - assets:
         - "pom.xml"
@@ -27,3 +27,7 @@ plugins:
     - assets:
       - path: "target/*.jar"
         label: "Application JAR"
+      - path: "target/openapi.json"
+        label: "OpenAPI Specification JSON"
+      - path: "target/openapi.yaml"
+        label: "OpenAPI Specification YAML"
