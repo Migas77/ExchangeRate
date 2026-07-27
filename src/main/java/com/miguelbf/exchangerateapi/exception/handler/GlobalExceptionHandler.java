@@ -1,5 +1,6 @@
 package com.miguelbf.exchangerateapi.exception.handler;
 
+import com.miguelbf.exchangerateapi.exception.ProblemDetails;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -43,12 +44,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         // although spring.web.error.include-stacktrace=never is set in application.properties
         log.atError().setMessage("Unhandled exception").setCause(ex).log();
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-        ProblemDetail problemDetail = ProblemDetail.forStatus(httpStatus);
-        problemDetail.setType(URI.create("about:blank"));
-        problemDetail.setTitle(httpStatus.getReasonPhrase());
-        problemDetail.setDetail("An unexpected error occurred. Please try again later.");
-        problemDetail.setInstance(URI.create(request.getRequestURI()));
-        return problemDetail;
+        String detail = "An unexpected error occurred. Please try again later.";
+        return ProblemDetails.of(httpStatus, detail, request);
     }
 
 }

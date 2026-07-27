@@ -41,7 +41,9 @@ public class RestClientConfig {
     @Bean
     public RestClient getExchangeRatesRestClient(ObjectProvider<RestClient.Builder> builderProvider) {
         RestClient.Builder builder = builderProvider.getIfAvailable(() -> {
-            HttpClientSettings settings = HttpClientSettings.defaults();
+            HttpClientSettings settings = HttpClientSettings.defaults()
+                .withConnectTimeout(exchangeRatesClientProperties.getConnectTimeout())
+                .withReadTimeout(exchangeRatesClientProperties.getReadTimeout());
             ClientHttpRequestFactory requestFactory = ClientHttpRequestFactoryBuilder.httpComponents().build(settings);
             return RestClient.builder().requestFactory(requestFactory);
         });
