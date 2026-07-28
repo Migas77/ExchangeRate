@@ -172,7 +172,6 @@ class UpstreamExceptionHandlerMockExceptionsTest {
         assertEquals(1, logAppender.list.size(), "Expected exactly one log event");
         assertEquals(Level.ERROR, event.getLevel());
         assertEquals(message, event.getMessage());
-        System.out.println(exception.getUrl());
         assertEquals(
             objectMapper.writeValueAsString(exception.getUrl().toString()),
             LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "url")

@@ -1,6 +1,7 @@
 package com.miguelbf.exchangerateapi.config.logging;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import lombok.Getter;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.boot.logging.logback.StructuredLogEncoder;
 
@@ -12,6 +13,7 @@ import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 @NullMarked
+@Getter
 public class MaskingStructuredLogEncoder extends StructuredLogEncoder {
 
     private final List<String> maskPatterns = new ArrayList<>();
