@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <springProperty scope="context" name="structuredFormat" source="logging.structured.format.console"/>
 
     <!-- Overrides appender defined at org/springframework/boot/logging/logback/structured-console-appender.xml -->
@@ -20,6 +20,6 @@
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>
