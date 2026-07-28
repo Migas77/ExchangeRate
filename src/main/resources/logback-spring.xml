@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <springProperty scope="context" name="structuredFormat" source="logging.structured.format.console"/>
+
+    <!-- Overrides appender defined at org/springframework/boot/logging/logback/structured-console-appender.xml -->
+    <!-- Is exactly the same apart from -->
+    <!--     MaskingStructuredLogEncoder instead of default org.springframework.boot.logging.logback.StructuredLogEncoder -->
+    <!--     the defined masking rules  -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>${CONSOLE_LOG_THRESHOLD}</level>
+        </filter>
+        <encoder class="com.miguelbf.exchangerateapi.config.logging.MaskingStructuredLogEncoder">
+            <format>${CONSOLE_LOG_STRUCTURED_FORMAT}</format>
+            <charset>${CONSOLE_LOG_CHARSET}</charset>
+            <!-- Masking rules -->
+            <maskPattern>access_key=(.{32})</maskPattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

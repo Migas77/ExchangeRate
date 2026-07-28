@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.5</version>
+		<version>4.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.miguelbf</groupId>
@@ -29,6 +29,13 @@
 	<properties>
 		<sonar.organization>migas77</sonar.organization>
 		<java.version>21</java.version>
+		<maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+		<error-prone.version>2.50.0</error-prone.version>
+		<nullaway.version>0.13.7</nullaway.version>
+		<jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
+		<org.apache.httpcomponents.client5.version>5.6.1</org.apache.httpcomponents.client5.version>
+		<springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
+		<springdoc-openapi-maven-plugin.version>1.5</springdoc-openapi-maven-plugin.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -49,22 +56,44 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-restclient-test</artifactId>
-			<scope>test</scope>
+			<artifactId>spring-boot-starter-restclient</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-restclient-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
+			<version>${org.apache.httpcomponents.client5.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<scope>annotationProcessor</scope>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jacoco</groupId>
 			<artifactId>jacoco-maven-plugin</artifactId>
-			<version>0.8.15</version>
+			<version>${jacoco-maven-plugin.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${springdoc-openapi-starter-webmvc-ui.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-maven-plugin</artifactId>
+			<version>${springdoc-openapi-maven-plugin.version}</version>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
@@ -79,28 +108,133 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.15</version>
+				<version>${jacoco-maven-plugin.version}</version>
+				<configuration>
+					<excludes>
+						<exclude>**/config/OpenAPIConfig.class</exclude>
+					</excludes>
+				</configuration>
 				<executions>
 					<execution>
-					<id>prepare-agent</id>
-					<goals>
-						<goal>prepare-agent</goal>
-					</goals>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
 					</execution>
 					<execution>
-					<id>report</id>
-					<goals>
-						<goal>report</goal>
-					</goals>
-					<configuration>
-						<formats>
-						<format>XML</format>
-						</formats>
-					</configuration>
+						<id>report</id>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<formats>
+								<format>XML</format>
+							</formats>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
+			<!-- Error Prone with NullAway  -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<encoding>UTF-8</encoding>
+					<compilerArgs>
+						<arg>-XDcompilePolicy=simple</arg>
+						<arg>--should-stop=ifError=FLOW</arg>
+						<arg>-Xplugin:ErrorProne @${project.basedir}/errorprone.cfg</arg>
+						<!-- necessary only if building with JDK21 (we are):
+						https://github.com/google/error-prone/issues/5426 -->
+						<arg>-XDaddTypeAnnotationsToSymbol=true</arg>
+					</compilerArgs>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>com.google.errorprone</groupId>
+							<artifactId>error_prone_core</artifactId>
+							<version>${error-prone.version}</version>
+						</path>
+						<path>
+							<groupId>com.uber.nullaway</groupId>
+							<artifactId>nullaway</artifactId>
+							<version>${nullaway.version}</version>
+						</path>
+						<!-- Other annotation processors go here.
+                        If 'annotationProcessorPaths' is set, processors will no longer be
+                        discovered on the regular -classpath; see also 'Using Error Prone
+                        together with other annotation processors' below. -->
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<!-- Generate JSON / YAML OpenAPI description during build time with -Dgenerate-openapi-->
+		<profile>
+			<id>generate-openapi</id>
+			<activation>
+				<property>
+					<name>generate-openapi</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.springframework.boot</groupId>
+						<artifactId>spring-boot-maven-plugin</artifactId>
+						<configuration>
+							<jvmArguments>-Dspring.application.admin.enabled=true</jvmArguments>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>start</goal>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.springdoc</groupId>
+						<artifactId>springdoc-openapi-maven-plugin</artifactId>
+						<version>${springdoc-openapi-maven-plugin.version}</version>
+						<executions>
+							<execution>
+								<id>json</id>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<configuration>
+									<apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+									<outputFileName>openapi.json</outputFileName>
+									<outputDir>${project.build.directory}</outputDir>
+								</configuration>
+							</execution>
+							<execution>
+								<id>yaml</id>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<configuration>
+									<apiDocsUrl>http://localhost:8080/v3/api-docs.yaml</apiDocsUrl>
+									<outputFileName>openapi.yaml</outputFileName>
+									<outputDir>${project.build.directory}</outputDir>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>

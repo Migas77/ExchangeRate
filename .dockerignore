@@ -1,0 +1,8 @@
+*
+!src
+!src/**
+!.mvn
+!.mvn/jvm.config
+!errorprone.cfg
+!lombok.config
+!pom.xml

@@ -38,6 +38,8 @@ jobs:
         id: semantic
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
+          EXCHANGE_RATE_API_BASE_URL: "https://placeholder.ci.com"
+          EXCHANGE_RATE_API_ACCESS_KEY: "00000000000000000000000000000000"
         run: |
           npm exec --ignore-scripts \
             --package conventional-changelog-conventionalcommits@8.0.0 \
