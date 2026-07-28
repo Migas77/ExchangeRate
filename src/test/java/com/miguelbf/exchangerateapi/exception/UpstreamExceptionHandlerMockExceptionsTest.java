@@ -260,7 +260,7 @@ class UpstreamExceptionHandlerMockExceptionsTest {
         );
     }
 
-    private static Stream<Arguments> ratesUpstreamDataExceptionsAndMessages() throws URISyntaxException {
+    private static Stream<Arguments> ratesUpstreamDataExceptionsAndMessages() {
         // This payloads wouldn't ctually trigger any error
         return Stream.of(
             Arguments.of(
