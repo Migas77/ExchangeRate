@@ -27,7 +27,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.ResourceAccessException;
+import tools.jackson.databind.ObjectMapper;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.*;
@@ -48,6 +50,9 @@ class UpstreamExceptionHandlerMockExceptionsTest {
     private ApplicationContext context;
 
     @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
@@ -55,9 +60,11 @@ class UpstreamExceptionHandlerMockExceptionsTest {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(UpstreamExceptionHandler.class);
     private ListAppender<ILoggingEvent> logAppender;
+    private ByteArrayOutputStream logOutput;
 
     @BeforeEach
     void attachLogAppender() {
+        this.logOutput = LoggingEvents.getLoggerByteOutputStream("CONSOLE");
         logAppender = new ListAppender<>();
         logAppender.start();
         logger.addAppender(logAppender);
@@ -66,6 +73,7 @@ class UpstreamExceptionHandlerMockExceptionsTest {
     @AfterEach
     void detachLogAppender() {
         logger.detachAppender(logAppender);
+        logAppender.stop();
     }
 
     @Test
@@ -164,6 +172,15 @@ class UpstreamExceptionHandlerMockExceptionsTest {
         assertEquals(1, logAppender.list.size(), "Expected exactly one log event");
         assertEquals(Level.ERROR, event.getLevel());
         assertEquals(message, event.getMessage());
+        System.out.println(exception.getUrl());
+        assertEquals(
+            objectMapper.writeValueAsString(exception.getUrl().toString()),
+            LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "url")
+        );
+        assertEquals(
+            objectMapper.writeValueAsString(exception.getMethod().toString()),
+            LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "method")
+        );
         assertInstanceOf(exception.getClass(), throwable);
         assertNotNull(exception.getCause());
         assertInstanceOf(exception.getCause().getClass(), throwable.getCause());
@@ -191,6 +208,23 @@ class UpstreamExceptionHandlerMockExceptionsTest {
         assertEquals(1, logAppender.list.size(), "Expected exactly one log event");
         assertEquals(Level.ERROR, event.getLevel());
         assertEquals(message, event.getMessage());
+
+        assertEquals(
+            objectMapper.writeValueAsString(exception.getSource()),
+            LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "req_source")
+        );
+        assertEquals(
+            objectMapper.writeValueAsString(exception.getTarget()),
+            LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "req_target")
+        );
+        assertEquals(
+            objectMapper.writeValueAsString(exception.getLiveRates().getSource()),
+            LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "act_source")
+        );
+        assertEquals(
+            objectMapper.writeValueAsString(exception.getLiveRates().getQuotes()),
+            LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "act_quotes")
+        );
         assertInstanceOf(exception.getClass(), throwable);
         verify(stubService, times(1)).call();
     }
