@@ -44,4 +44,25 @@ public class CacheConfig {
             .build();
     }
 
+    @Bean
+    static BeanPostProcessor eagerLettuceInitializer() {
+        // removes huge overhead from first redis call (roughly 150 ms)
+        return new BeanPostProcessor() {
+            @Override
+            public Object postProcessBeforeInitialization(@NonNull Object bean, @NonNull String beanName) {
+                if (bean instanceof LettuceConnectionFactory lettuceConnectionFactory) {
+                    lettuceConnectionFactory.setEagerInitialization(true);
+                }
+                return bean;
+            }
+        };
+    }
+
+    @Bean
+    ApplicationRunner warmUpRedis(RedisConnectionFactory factory) {
+        // removes small remaining overhead for the first call after setting eager initialization
+        // actually triggers LettuceConnectionFactory.doCreateLettuceConnection
+        return args -> factory.getConnection().ping();
+    }
+
 }
