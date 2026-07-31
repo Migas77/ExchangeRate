@@ -27,7 +27,7 @@ public class CacheConfig {
     public RedisCacheConfiguration cacheConfiguration() {
         return RedisCacheConfiguration
             .defaultCacheConfig()
-            .entryTtl(exchangeRatesClientProperties.getCachingTTL())
+            .entryTtl(exchangeRatesClientProperties.getCachingTtl())
             .disableCachingNullValues()
             .serializeValuesWith(RedisSerializationContext.SerializationPair
                 .fromSerializer(new JacksonJsonRedisSerializer<>(RatesResponse.class)));

@@ -74,7 +74,7 @@ class ExchangeRatesServiceRedisCachingIT {
         RedisCacheConfiguration cacheConfig = redisCache.getCacheConfiguration();
         assertNotNull(cacheConfig);
         Duration configuredTTL = cacheConfig.getTtlFunction().getTimeToLive("USD", null);
-        assertEquals(exchangeRatesClientProperties.getCachingTTL(), configuredTTL);
+        assertEquals(exchangeRatesClientProperties.getCachingTtl(), configuredTTL);
     }
 
     @ParameterizedTest
@@ -82,7 +82,6 @@ class ExchangeRatesServiceRedisCachingIT {
     void whenSuccessfulServiceCall_thenResultIsCachedWithExpectedExpiringTTL(
         Currency source, @Nullable Currency target, String cacheKey, LiveRates upstreamResponse
     ) {
-        System.out.println(exchangeRatesClientProperties.getCachingTTL());
         when(exchangeRatesClientService.getLiveRates(source, target)).thenReturn(upstreamResponse);
 
         exchangeRatesService.getRates(source, target);
@@ -94,7 +93,7 @@ class ExchangeRatesServiceRedisCachingIT {
         assertEquals(upstreamResponse.getSource(), rates.source());
         assertEquals(upstreamResponse.getQuotes(), rates.rates());
         Awaitility.await()
-            .atMost(exchangeRatesClientProperties.getCachingTTL().plusSeconds(2))
+            .atMost(exchangeRatesClientProperties.getCachingTtl().plusSeconds(2))
             .pollInterval(Duration.ofMillis(200))
             .untilAsserted(() -> assertNull(redisCache.get(cacheKey, RatesResponse.class)));
         verify(exchangeRatesClientService, times(1)).getLiveRates(source, target);

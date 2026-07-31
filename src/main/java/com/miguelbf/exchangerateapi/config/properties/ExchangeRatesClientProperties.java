@@ -35,6 +35,6 @@ public class ExchangeRatesClientProperties {
     private Duration readTimeout = Duration.ofSeconds(10);
 
     @NotNull
-    private Duration cachingTTL = Duration.ofMinutes(1);
+    private Duration cachingTtl = Duration.ofMinutes(1);
 
 }
