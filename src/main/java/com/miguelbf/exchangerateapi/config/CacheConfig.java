@@ -2,7 +2,6 @@ package com.miguelbf.exchangerateapi.config;
 
 
 import com.miguelbf.exchangerateapi.config.properties.ExchangeRatesClientProperties;
-import com.miguelbf.exchangerateapi.model.clients.exchangerates.LiveRates;
 import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
 import lombok.AllArgsConstructor;
 import org.jspecify.annotations.NonNull;
