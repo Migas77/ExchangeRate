@@ -14,6 +14,24 @@ plugins:
           release: patch
   - - "@semantic-release/release-notes-generator"
     - preset: conventionalcommits
+      presetConfig:
+        types:
+          - type: feat
+            section: "Features"
+          - type: fix
+            section: "Bug Fixes"
+          - type: refactor
+            section: "Refactors"
+          - type: revert
+            section: "Reverts"
+          - type: build
+            section: "Build"
+          - type: docs
+            section: "Documentation"
+          - type: deploy
+            section: "Deployment"
+          - type: ci
+            section: "CI"
   - - "@semantic-release/changelog"
     - changelogFile: "CHANGELOG.md"
   - - "@semantic-release/exec"
