@@ -23,7 +23,7 @@ services:
         max-file: "5"
 
   backend:
-    image: exchange-rate-api:latest
+    image: exchange-rate-api:1.1.0
     container_name: exchangerate-spring
     restart: unless-stopped
     ports:

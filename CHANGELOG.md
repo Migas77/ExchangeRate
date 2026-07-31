@@ -1,3 +1,33 @@
+## [1.1.0](https://github.com/Migas77/ExchangeRate/compare/v1.0.0...v1.1.0) (2026-07-31)
+
+### Features
+
+* **caching:** add redis cache with default 1m TTL for caching RatesResponses ([13fa7a9](https://github.com/Migas77/ExchangeRate/commit/13fa7a9279dfb76929387f19d8236cae2afc906e))
+* **caching:** correct naming for caching ttl to work with application.properties ([847b436](https://github.com/Migas77/ExchangeRate/commit/847b436c8ec3d20b96eeba78dff1812b3b2e2aa3))
+* **caching:** removed lettuce factory overhead caught with intellij profiler (eager init + ping) ([ab4c166](https://github.com/Migas77/ExchangeRate/commit/ab4c16693728c8fbe4c4840f066ad9de9e75b93e))
+
+### Build
+
+* **mvn:** add actuator dependency (for health endpoint) ([1aaee33](https://github.com/Migas77/ExchangeRate/commit/1aaee331f34e1d0228cc3de6d45881a2c71cf3ec))
+* **mvn:** add spring-boot-starter-cache and spring-boot-starter-data-redis to dependencies ([5587c8e](https://github.com/Migas77/ExchangeRate/commit/5587c8e970a273d1cbb35be198fac75ac7381f1b))
+* **mvn:** add test containers (redis and junit) dependencies ([42f3d6b](https://github.com/Migas77/ExchangeRate/commit/42f3d6be8ba94817905fbc1fcebd99aa27013279))
+
+### Tests
+
+* **caching:** test `@Cacheable` with ConcurrentMapCacheManager and mock upstream client ([91fc4ea](https://github.com/Migas77/ExchangeRate/commit/91fc4ea9621e77cb987a49ab55656eae0174c4c0))
+* **caching:** test `@Cacheable` with Redis TestContainer and actual RedisConfig (integration test) ([3568e0b](https://github.com/Migas77/ExchangeRate/commit/3568e0bd0c2b81208af6e187dd03c44e11c2d5e5))
+
+### Deployment
+
+* docker compose ([572bd2c](https://github.com/Migas77/ExchangeRate/commit/572bd2c34ed9c24a5fdddbd5e9e2b771f6a33c90))
+
+### CI
+
+* **actions:** skip integration tests on sonar build ([723f034](https://github.com/Migas77/ExchangeRate/commit/723f03407af5004813c3b346b03f95157da8c590))
+* **release:** add tests to release messages ([5074b5e](https://github.com/Migas77/ExchangeRate/commit/5074b5e1be866513c0ccf2b331d62d20532a0e9b))
+* **release:** change docker compose image version to next release tag ([444ca2b](https://github.com/Migas77/ExchangeRate/commit/444ca2bbddae50db11062480f4b757d4d4c8f37c))
+* **release:** change release description to include more conventional commits types ([76a0b58](https://github.com/Migas77/ExchangeRate/commit/76a0b582d636b42df55ad80f18d785bab4566480))
+
 ## 1.0.0 (2026-07-28)
 
 ### Features
