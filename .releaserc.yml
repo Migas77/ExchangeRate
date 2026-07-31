@@ -35,9 +35,10 @@ plugins:
   - - "@semantic-release/changelog"
     - changelogFile: "CHANGELOG.md"
   - - "@semantic-release/exec"
-    - prepareCmd: "mvn -B versions:set -DnewVersion=${nextRelease.version} -DgenerateBackupPoms=false && mvn -B clean verify -Dgenerate-openapi -DskipTests"
+    - prepareCmd: "mvn -B versions:set -DnewVersion=${nextRelease.version} -DgenerateBackupPoms=false && sed -i \"s|image: exchange-rate-api:.*|image: exchange-rate-api:${nextRelease.version}|\" docker-compose.yml && mvn -B clean verify -Dgenerate-openapi -DskipTests"
   - - "@semantic-release/git"
     - assets:
+        - "docker-compose.yml"
         - "pom.xml"
         - "CHANGELOG.md"
       message: "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
