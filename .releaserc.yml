@@ -26,6 +26,8 @@ plugins:
             section: "Reverts"
           - type: build
             section: "Build"
+          - type: test
+            section: "Tests"
           - type: docs
             section: "Documentation"
           - type: deploy
