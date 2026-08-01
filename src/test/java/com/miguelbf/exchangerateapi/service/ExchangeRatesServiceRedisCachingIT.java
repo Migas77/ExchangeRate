@@ -5,6 +5,7 @@ import com.miguelbf.exchangerateapi.config.properties.ExchangeRatesClientPropert
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.LiveRates;
 import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
+import com.miguelbf.exchangerateapi.service.impl.ExchangeRatesService;
 import com.redis.testcontainers.RedisContainer;
 import org.awaitility.Awaitility;
 import org.jspecify.annotations.Nullable;

@@ -5,6 +5,7 @@ import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamDataExcepti
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.LiveRates;
 import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
+import com.miguelbf.exchangerateapi.service.impl.ExchangeRatesService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

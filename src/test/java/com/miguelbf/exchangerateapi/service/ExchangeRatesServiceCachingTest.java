@@ -4,6 +4,7 @@ import com.miguelbf.exchangerateapi.client.ExchangeRatesClientService;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.LiveRates;
 import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
+import com.miguelbf.exchangerateapi.service.impl.ExchangeRatesService;
 import com.miguelbf.exchangerateapi.utilities.beans.TestCacheConfig;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
