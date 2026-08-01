@@ -29,10 +29,10 @@
 	<properties>
 		<sonar.organization>migas77</sonar.organization>
 		<sonar.coverage.exclusions>
-			**/config/OpenAPIConfig.java,**/config/CacheConfig.java
+			**/config/OpenAPIConfig.java,**/config/CacheConfig.java,**/config/security/SecurityConfig.java
 		</sonar.coverage.exclusions>
 		<jacoco.coverage.exclusions>
-			**/config/OpenAPIConfig.class,**/config/CacheConfig.class
+			**/config/OpenAPIConfig.class,**/config/CacheConfig.class,**/config/security/SecurityConfig.class
 		</jacoco.coverage.exclusions>
 		<java.version>21</java.version>
 		<maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
@@ -63,6 +63,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
