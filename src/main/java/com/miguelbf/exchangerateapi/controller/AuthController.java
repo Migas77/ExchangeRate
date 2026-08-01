@@ -1,7 +1,6 @@
 package com.miguelbf.exchangerateapi.controller;
 
-import com.miguelbf.exchangerateapi.model.dto.AuthResponseDTO;
-import com.miguelbf.exchangerateapi.model.dto.SignUpRequestDTO;
+import com.miguelbf.exchangerateapi.model.dto.*;
 import com.miguelbf.exchangerateapi.service.impl.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -32,5 +31,15 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(authResponseDTO);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDTO> login(
+        @Valid @RequestBody LoginRequestDTO loginRequestDTO
+    ) {
+        AuthResponseDTO authResponseDTO = authService.login(loginRequestDTO);
+        if (authResponseDTO == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(authResponseDTO);
+    }
 
 }
