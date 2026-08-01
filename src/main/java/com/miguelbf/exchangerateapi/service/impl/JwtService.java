@@ -5,6 +5,7 @@ import com.miguelbf.exchangerateapi.service.IJwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -24,32 +25,36 @@ public class JwtService implements IJwtService {
         this.jwtProperties = jwtProperties;
     }
 
+    private String extractRole(UserDetails user) {
+        String role = user.getAuthorities().stream()
+            .findFirst()
+            .map(GrantedAuthority::getAuthority)
+            .orElse(null);
+        if (role == null) {
+            throw new IllegalStateException("User has no authorities");
+        }
+        return role;
+    }
+
     @Override
-    public String extractSubject(String token) {
-        return this.extractClaim(token, Claims::getSubject);
+    public Instant extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration).toInstant();
     }
 
     @Override
     public String generateToken(UserDetails user) {
-        return this.generateJwtToken(Map.of(), user, this.jwtProperties.getAccessExpTime());
-    }
-
-    @Override
-    public boolean isTokenValid(String token, UserDetails user) {
-        return extractSubject(token).equals(user.getUsername()) && !isTokenExpired(token);
+        return this.generateJwtToken(Map.of(
+            "role", this.extractRole(user)
+        ), user, this.jwtProperties.getAccessExpTime());
     }
 
     @Override
     public String generateRefreshToken(UserDetails user) {
-        return this.generateJwtToken(Map.of("type", "refresh"), user, this.jwtProperties.getRefreshExpTime());
-    }
-
-    @Override
-    public boolean isRefreshTokenValid(UserDetails user, String refreshToken) {
-        final Claims refreshClaims = extractAllClaims(refreshToken);
-        return isTokenValid(refreshToken, user)
-            && refreshClaims.containsKey("type")
-            && refreshClaims.get("type").equals("refresh");
+        return this.generateJwtToken(
+            Map.of(
+                "type", "refresh",
+                "role", this.extractRole(user)
+            ), user, this.jwtProperties.getRefreshExpTime());
     }
 
     private String generateJwtToken(Map<String, Object> extraClaims, UserDetails user, Duration expirationTime) {
@@ -64,10 +69,6 @@ public class JwtService implements IJwtService {
             .and()
             .signWith(this.getSigningKey())
             .compact();
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractClaim(token, Claims::getExpiration).toInstant().isBefore(Instant.now());
     }
 
     private SecretKey getSigningKey() {
