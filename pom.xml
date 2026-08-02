@@ -317,6 +317,22 @@
 				</plugins>
 			</build>
 		</profile>
+		<!-- CI profile -->
+		<profile>
+			<id>ci</id>
+			<activation>
+				<property>
+					<name>ci</name>
+				</property>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
+					<scope>runtime</scope>
+				</dependency>
+			</dependencies>
+		</profile>
 	</profiles>
 
 </project>

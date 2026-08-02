@@ -21,7 +21,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 @Configuration
 @EnableCaching
 @AllArgsConstructor
-@Profile("!no-redis")
+@Profile("!ci & !no-redis")
 public class CacheConfig {
 
     private ExchangeRatesClientProperties exchangeRatesClientProperties;

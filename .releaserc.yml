@@ -37,7 +37,7 @@ plugins:
   - - "@semantic-release/changelog"
     - changelogFile: "CHANGELOG.md"
   - - "@semantic-release/exec"
-    - prepareCmd: "mvn -B versions:set -DnewVersion=${nextRelease.version} -DgenerateBackupPoms=false && sed -i \"s|image: migas77/exchange-rate-api:.*|image: migas77/exchange-rate-api:v${nextRelease.version}|\" docker-compose.yml && mvn -B clean verify -Dgenerate-openapi -DskipTests"
+    - prepareCmd: "mvn -B versions:set -DnewVersion=${nextRelease.version} -DgenerateBackupPoms=false && sed -i \"s|image: migas77/exchange-rate-api:.*|image: migas77/exchange-rate-api:v${nextRelease.version}|\" docker-compose.yml && mvn -B clean verify -Dci -Dgenerate-openapi -DskipTests"
   - - "@semantic-release/git"
     - assets:
         - "docker-compose.yml"
