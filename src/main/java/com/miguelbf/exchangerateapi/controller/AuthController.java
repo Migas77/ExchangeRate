@@ -148,8 +148,27 @@ public class AuthController {
                 }
             )
         ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "Invalid email or password.",
+            content = @Content(
+                mediaType = "application/problem+json",
+                schema = @Schema(implementation = ProblemDetail.class),
+                examples = @ExampleObject(
+                    name = "Invalid Credentials",
+                    value = """
+                        {
+                          "type": "about:blank",
+                          "title": "Unauthorized",
+                          "status": 401,
+                          "detail": "Invalid email or password.",
+                          "instance": "/api/auth/login"
+                        }
+                        """
+                )
+            )
+        )
     })
-    // The 401 is contributed by AuthExceptionHandler#handledBadCredentials
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(
         @Valid @RequestBody LoginRequestDTO loginRequestDTO

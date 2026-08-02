@@ -2,10 +2,6 @@ package com.miguelbf.exchangerateapi.exception.handler;
 
 import com.miguelbf.exchangerateapi.controller.AuthController;
 import com.miguelbf.exchangerateapi.exception.ProblemDetails;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -57,26 +53,6 @@ public class AuthExceptionHandler {
         return ProblemDetails.of(HttpStatus.BAD_REQUEST, message, request);
     }
 
-    @ApiResponse(
-        responseCode = "401",
-        description = "Invalid email or password.",
-        content = @Content(
-            mediaType = "application/problem+json",
-            schema = @Schema(implementation = ProblemDetail.class),
-            examples = @ExampleObject(
-                name = "Invalid Credentials",
-                value = """
-                    {
-                      "type": "about:blank",
-                      "title": "Unauthorized",
-                      "status": 401,
-                      "detail": "Invalid email or password.",
-                      "instance": "/api/auth/login"
-                    }
-                    """
-            )
-        )
-    )
     @ExceptionHandler(BadCredentialsException.class)
     protected ProblemDetail handledBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
         log.atWarn().setMessage("Bad Credentials").setCause(ex).log();
