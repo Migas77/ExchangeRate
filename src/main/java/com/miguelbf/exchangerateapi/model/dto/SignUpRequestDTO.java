@@ -2,7 +2,7 @@ package com.miguelbf.exchangerateapi.model.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.Size;
 
 public record SignUpRequestDTO(
     @NotBlank
@@ -10,7 +10,7 @@ public record SignUpRequestDTO(
     String email,
 
     @NotBlank
-    @Length(min = 6, message = "Password must be at least 6 characters long")
+    @Size(min = 6, max = 128, message = "Password must be between 6 and 128 characters long")
     String password
 ) {
 }

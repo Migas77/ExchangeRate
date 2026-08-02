@@ -3,9 +3,9 @@ package com.miguelbf.exchangerateapi.config.properties;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +25,7 @@ public class ExchangeRatesClientProperties {
     private String baseUrl;
 
     @NotBlank
-    @Length(min = 32, max = 32)
+    @Size(min = 32, max = 32)
     private String accessKey;
 
     @NotNull

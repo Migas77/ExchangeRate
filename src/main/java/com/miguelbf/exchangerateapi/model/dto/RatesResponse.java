@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 public record RatesResponse(
-    @Schema(description = "Unix timestamp of when rates were fetched", example = "1690300800")
+    @Schema(description = "Unix timestamp of when rates were fetched", example = "1785667963")
     @JsonProperty(required = true) long timestamp,
 
     @Schema(description = "Base currency the rates are relative to")
