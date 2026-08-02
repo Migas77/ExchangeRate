@@ -4,6 +4,8 @@ import com.miguelbf.exchangerateapi.entities.User;
 import com.miguelbf.exchangerateapi.entities.UserRole;
 import com.miguelbf.exchangerateapi.model.dto.*;
 import com.miguelbf.exchangerateapi.service.IAuthService;
+import com.miguelbf.exchangerateapi.service.IJwtService;
+import com.miguelbf.exchangerateapi.service.IUserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -12,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -25,8 +28,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AuthService implements IAuthService {
 
-    private final JwtService jwtService;
-    private final UserService userService;
+    private final IJwtService jwtService;
+    private final IUserService userService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
@@ -54,7 +57,7 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    public @Nullable AuthResponseDTO login(LoginRequestDTO loginRequestDTO) {
+    public @Nullable AuthResponseDTO login(LoginRequestDTO loginRequestDTO) throws AuthenticationException {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(loginRequestDTO.email(), loginRequestDTO.password())
         );
@@ -73,7 +76,9 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    public @Nullable JwtRefreshResponseDTO refresh(JwtRefreshRequestDTO jwtRefreshRequestDTO) {
+    public @Nullable JwtRefreshResponseDTO refresh(
+        JwtRefreshRequestDTO jwtRefreshRequestDTO
+    ) throws InvalidBearerTokenException, AuthenticationServiceException {
         Jwt jwt = this.getJwt(jwtRefreshRequestDTO);
         String subject = jwt.getSubject();
         if (subject == null) {
@@ -93,7 +98,9 @@ public class AuthService implements IAuthService {
         );
     }
 
-    private Jwt getJwt(JwtRefreshRequestDTO jwtRefreshRequestDTO) {
+    private Jwt getJwt(
+        JwtRefreshRequestDTO jwtRefreshRequestDTO
+    ) throws InvalidBearerTokenException, AuthenticationServiceException {
         // same behavior of org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider
         try {
             return refreshJwtDecoder.decode(jwtRefreshRequestDTO.refreshToken());

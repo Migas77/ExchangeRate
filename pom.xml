@@ -31,9 +31,6 @@
 		<sonar.coverage.exclusions>
 			**/config/OpenAPIConfig.java,**/config/CacheConfig.java,**/config/security/SecurityConfig.java
 		</sonar.coverage.exclusions>
-		<jacoco.coverage.exclusions>
-			**/config/OpenAPIConfig.class,**/config/CacheConfig.class,**/config/security/SecurityConfig.class
-		</jacoco.coverage.exclusions>
 		<java.version>21</java.version>
 		<maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
 		<error-prone.version>2.50.0</error-prone.version>
@@ -193,7 +190,9 @@
 				<version>${jacoco-maven-plugin.version}</version>
 				<configuration>
 					<excludes>
-						<exclude>${jacoco.coverage.exclusions}</exclude>
+						<exclude>**/config/OpenAPIConfig.class</exclude>
+						<exclude>**/config/CacheConfig.class</exclude>
+						<exclude>**/config/security/SecurityConfig.class</exclude>
 					</excludes>
 				</configuration>
 				<executions>

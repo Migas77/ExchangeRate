@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
@@ -74,7 +75,7 @@ public class JwtService implements IJwtService {
     }
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = this.jwtProperties.getJwtSigningKey().getBytes();
+        byte[] keyBytes = this.jwtProperties.getJwtSigningKey().getBytes(Charset.defaultCharset());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

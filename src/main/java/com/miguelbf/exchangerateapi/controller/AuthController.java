@@ -1,7 +1,7 @@
 package com.miguelbf.exchangerateapi.controller;
 
 import com.miguelbf.exchangerateapi.model.dto.*;
-import com.miguelbf.exchangerateapi.service.impl.AuthService;
+import com.miguelbf.exchangerateapi.service.IAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,9 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirements({})
 public class AuthController {
 
-    private final AuthService authService;
+    private final IAuthService authService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(IAuthService authService) {
         this.authService = authService;
     }
 
@@ -107,11 +107,11 @@ public class AuthController {
             refresh token and expiry. Use the returned `accessToken` as `Authorization: Bearer \
             <accessToken>` on the protected endpoints."""
     )
-    @ApiResponse(
-        responseCode = "200",
-        description = "Authenticated. Contains the access token, the refresh token and the access token lifetime in seconds."
-    )
     @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Authenticated. Contains the access token, the refresh token and the access token lifetime in seconds."
+        ),
         @ApiResponse(
             responseCode = "400",
             description = """

@@ -1,7 +1,7 @@
 package com.miguelbf.exchangerateapi.config.security;
 
 import com.miguelbf.exchangerateapi.config.properties.JwtProperties;
-import com.miguelbf.exchangerateapi.service.impl.UserService;
+import com.miguelbf.exchangerateapi.service.IUserService;
 import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +29,7 @@ import org.springframework.security.oauth2.server.resource.web.access.BearerToke
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.Charset;
 import java.util.List;
 
 @Configuration
@@ -38,7 +39,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtProperties jwtProperties;
-    private final UserService userService;
+    private final IUserService userService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) {
@@ -73,7 +74,7 @@ public class SecurityConfig {
     @Bean
     public JwtDecoder jwtDecoder() {
         // To be used in every endpoint that requires authentication, to decode the access token
-        byte[] keyBytes = this.jwtProperties.getJwtSigningKey().getBytes();
+        byte[] keyBytes = this.jwtProperties.getJwtSigningKey().getBytes(Charset.defaultCharset());
         SecretKey key = Keys.hmacShaKeyFor(keyBytes);
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(key).build();
         return token -> {
@@ -88,7 +89,7 @@ public class SecurityConfig {
     @Bean
     public JwtDecoder refreshJwtDecoder() {
         // To be used for in the /api/auth/refresh endpoint to get new access token
-        byte[] keyBytes = this.jwtProperties.getJwtSigningKey().getBytes();
+        byte[] keyBytes = this.jwtProperties.getJwtSigningKey().getBytes(Charset.defaultCharset());
         SecretKey key = Keys.hmacShaKeyFor(keyBytes);
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(key).build();
         return token -> {
