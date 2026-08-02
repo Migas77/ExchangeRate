@@ -71,6 +71,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
+        // To be used in every endpoint that requires authentication, to decode the access token
         byte[] keyBytes = this.jwtProperties.getJwtSigningKey().getBytes();
         SecretKey key = Keys.hmacShaKeyFor(keyBytes);
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(key).build();
@@ -78,6 +79,21 @@ public class SecurityConfig {
             Jwt jwt = decoder.decode(token);
             if ("refresh".equals(jwt.getClaimAsString("type"))) {
                 throw new BadJwtException("Refresh tokens cannot be used to access resources");
+            }
+            return jwt;
+        };
+    }
+
+    @Bean
+    public JwtDecoder refreshJwtDecoder() {
+        // To be used for in the /api/auth/refresh endpoint to get new access token
+        byte[] keyBytes = this.jwtProperties.getJwtSigningKey().getBytes();
+        SecretKey key = Keys.hmacShaKeyFor(keyBytes);
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(key).build();
+        return token -> {
+            Jwt jwt = decoder.decode(token);
+            if (!"refresh".equals(jwt.getClaimAsString("type"))) {
+                throw new BadJwtException("Only refresh tokens can be used to refresh access token");
             }
             return jwt;
         };

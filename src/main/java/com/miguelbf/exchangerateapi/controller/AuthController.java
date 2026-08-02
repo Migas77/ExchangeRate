@@ -26,7 +26,7 @@ public class AuthController {
     ) {
         AuthResponseDTO authResponseDTO = authService.signup(signUpRequestDTO);
         if (authResponseDTO == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(authResponseDTO);
     }
@@ -41,5 +41,17 @@ public class AuthController {
         }
         return ResponseEntity.ok(authResponseDTO);
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtRefreshResponseDTO> refreshToken(
+        @Valid @RequestBody JwtRefreshRequestDTO jwtRefreshRequestDTO
+    ) {
+        JwtRefreshResponseDTO jwtRefreshResponseDTO = authService.refresh(jwtRefreshRequestDTO);
+        if (jwtRefreshResponseDTO == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(jwtRefreshResponseDTO);
+    }
+
 
 }

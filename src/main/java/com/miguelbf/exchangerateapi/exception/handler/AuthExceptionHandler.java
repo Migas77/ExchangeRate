@@ -8,7 +8,10 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -51,6 +54,16 @@ public class AuthExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     protected ProblemDetail handledBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
         return ProblemDetails.of(HttpStatus.UNAUTHORIZED, "Invalid email or password.", request);
+    }
+
+    @ExceptionHandler({InvalidBearerTokenException.class, AuthenticationServiceException.class})
+    protected ProblemDetail handleAuthenticationException(
+        AuthenticationException ex, HttpServletRequest request
+    ) {
+        // These exceptions can be thrown when manually validating refresh access token in /api/auth/refresh endpoint
+        // These AuthenticationException subtypes will be rethrown so that ExceptionTranslationFilter
+        // (not this handler) produces the RFC 6750 401 + WWW-Authenticate response.
+        throw ex;
     }
 
 }

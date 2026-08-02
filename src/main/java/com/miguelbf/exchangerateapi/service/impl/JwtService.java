@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
@@ -62,6 +63,7 @@ public class JwtService implements IJwtService {
         return Jwts.builder()
             .claims()
             .empty()
+            .id(UUID.randomUUID().toString())
             .add(extraClaims)
             .subject(user.getUsername())
             .issuedAt(Date.from(now))

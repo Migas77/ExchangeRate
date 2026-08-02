@@ -2,9 +2,11 @@ package com.miguelbf.exchangerateapi.service.impl;
 
 import com.miguelbf.exchangerateapi.entities.User;
 import com.miguelbf.exchangerateapi.entities.UserRole;
-import com.miguelbf.exchangerateapi.model.dto.AuthResponseDTO;
-import com.miguelbf.exchangerateapi.model.dto.LoginRequestDTO;
-import com.miguelbf.exchangerateapi.model.dto.SignUpRequestDTO;
+import com.miguelbf.exchangerateapi.model.dto.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.oauth2.jwt.BadJwtException;
+import org.springframework.security.oauth2.jwt.Jwt;
 import com.miguelbf.exchangerateapi.service.IAuthService;
 import lombok.AllArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -12,10 +14,15 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class AuthService implements IAuthService {
 
     private final JwtService jwtService;
@@ -23,11 +30,13 @@ public class AuthService implements IAuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
+    @Qualifier("refreshJwtDecoder")
+    private final JwtDecoder refreshJwtDecoder;
 
     @Override
     public @Nullable AuthResponseDTO signup(SignUpRequestDTO signUpRequestDTO) {
         if (userService.getUserByEmail(signUpRequestDTO.email()) != null) {
-            // user already exists with same email
+            log.atWarn().setMessage("User email already exists").addKeyValue("email", signUpRequestDTO.email()).log();
             return null;
         }
         User newUser = userService.createUser(new User(
@@ -51,6 +60,7 @@ public class AuthService implements IAuthService {
         );
         User user = (User) authentication.getPrincipal();
         if (user == null) {
+            log.atWarn().setMessage("Null principal during login").addKeyValue("email", loginRequestDTO.email()).log();
             return null;
         }
         String accessToken = jwtService.generateToken(user);
@@ -60,6 +70,40 @@ public class AuthService implements IAuthService {
             jwtService.generateRefreshToken(user),
             jwtService.extractExpiration(accessToken)
         );
+    }
+
+    @Override
+    public @Nullable JwtRefreshResponseDTO refresh(JwtRefreshRequestDTO jwtRefreshRequestDTO) {
+        Jwt jwt = this.getJwt(jwtRefreshRequestDTO);
+        String subject = jwt.getSubject();
+        if (subject == null) {
+            log.atWarn().setMessage("Refresh token null subject").addKeyValue("jwtId", jwt.getId()).log();
+            return null;
+        }
+        User user = userService.getUserByEmail(subject);
+        if (user == null) {
+            log.atWarn().setMessage("User not found for jwt subject")
+                .addKeyValue("subject", subject).addKeyValue("jwtId", jwt.getId()).log();
+            return null;
+        }
+        String accessToken = jwtService.generateToken(user);
+        return JwtRefreshResponseDTO.fromTokenInfo(
+            accessToken,
+            jwtService.extractExpiration(accessToken)
+        );
+    }
+
+    private Jwt getJwt(JwtRefreshRequestDTO jwtRefreshRequestDTO) {
+        // same behavior of org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider
+        try {
+            return refreshJwtDecoder.decode(jwtRefreshRequestDTO.refreshToken());
+        } catch (BadJwtException failed) {
+            throw new InvalidBearerTokenException((failed.getMessage() != null) ? failed.getMessage() : "Invalid token",
+                failed);
+        } catch (JwtException failed) {
+            throw new AuthenticationServiceException(
+                (failed.getMessage() != null) ? failed.getMessage() : "Invalid token", failed);
+        }
     }
 
 }
