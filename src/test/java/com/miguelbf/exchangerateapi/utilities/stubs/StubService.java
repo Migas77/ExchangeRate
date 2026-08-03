@@ -9,4 +9,8 @@ public class StubService {
         // Empty stub service function to use in tests
     }
 
+    public void premiumCall() {
+        // Empty stub service function to use in tests of role restricted endpoints
+    }
+
 }

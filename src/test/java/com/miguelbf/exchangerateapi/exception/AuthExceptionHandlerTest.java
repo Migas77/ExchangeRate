@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(StubController.class)
 @Import(SecurityConfig.class)
-public class AuthExceptionHandlerTest {
+class AuthExceptionHandlerTest {
     /**
      * To test the default exception handling from the oauth2ResourceServer set up in
      * {@link com.miguelbf.exchangerateapi.config.security.SecurityConfig#securityFilterChain}, which is
@@ -153,6 +153,38 @@ public class AuthExceptionHandlerTest {
             .andExpect(status().isOk());
 
         verify(stubService, times(1)).call();
+    }
+
+    @Test
+    void givenFreeTierUser_whenPremiumOnlyEndpoint_thenStatusForbiddenAndWWWAuthenticateHeadersAndEmptyBody() throws Exception {
+        JwtService jwtServiceToGenerateToken = new JwtService(this.jwtProperties);
+        String accessToken = jwtServiceToGenerateToken.generateToken(new User("user@example.com", "password", UserRole.FREE_TIER));
+        String authHeader = "Bearer " + accessToken;
+
+        mockMvc
+            .perform(get("/stub/premium")
+                .header(HttpHeaders.AUTHORIZATION, authHeader))
+            .andExpect(status().isForbidden())
+            .andExpect(content().string(""))
+            .andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer error=\"insufficient_scope\", " +
+                "error_description=\"The request requires higher privileges than provided by the access token.\", " +
+                "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\""));
+
+        verify(stubService, never()).premiumCall();
+    }
+
+    @Test
+    void givenPremiumTierUser_whenPremiumOnlyEndpoint_thenStatusOkAndServiceReached() throws Exception {
+        JwtService jwtServiceToGenerateToken = new JwtService(this.jwtProperties);
+        String accessToken = jwtServiceToGenerateToken.generateToken(new User("user@example.com", "password", UserRole.PREMIUM_TIER));
+        String authHeader = "Bearer " + accessToken;
+
+        mockMvc
+            .perform(get("/stub/premium")
+                .header(HttpHeaders.AUTHORIZATION, authHeader))
+            .andExpect(status().isOk());
+
+        verify(stubService, times(1)).premiumCall();
     }
 
     private static String tamperToken(String jwt, String segment) {
