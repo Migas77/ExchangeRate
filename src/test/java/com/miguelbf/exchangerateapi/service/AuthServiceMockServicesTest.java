@@ -79,7 +79,8 @@ class AuthServiceMockServicesTest {
     @Test
     void givenExistingUserWithEmail_whenSignup_thenReturnNull() {
         SignUpRequestDTO signUpRequestDTO = new SignUpRequestDTO("user@example.com", "password");
-        when(userService.getUserByEmail(signUpRequestDTO.email())).thenReturn(mock(User.class));
+        User user = mock(User.class);
+        when(userService.getUserByEmail(signUpRequestDTO.email())).thenReturn(user);
 
         AuthResponseDTO authResponseDTO = authService.signup(signUpRequestDTO);
 

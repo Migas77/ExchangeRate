@@ -11,6 +11,8 @@ import com.miguelbf.exchangerateapi.utilities.stubs.StubService;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Answers;
@@ -21,6 +23,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+
+import java.util.stream.Stream;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -84,11 +88,14 @@ class AuthExceptionHandlerTest {
         verify(stubService, never()).call();
     }
 
-    @Test
-    void whenInvalidHeaderJwtToken_thenStatusUnauthorizedAndWWWAuthenticateHeadersAndEmptyBody() throws Exception {
+    @ParameterizedTest
+    @MethodSource("invalidJwtAndErrorScenarios")
+    void whenInvalidHeaderPayloadSignatureJwtToken_thenStatusUnauthorizedAndWWWAuthenticateHeadersAndEmptyBody(
+        String invalidSegment, String errorMessage
+    ) throws Exception {
         JwtService jwtServiceToGenerateToken = new JwtService(this.jwtProperties);
         String accessToken = jwtServiceToGenerateToken.generateToken(new User("user@example.com", "password", UserRole.FREE_TIER));
-        String authHeader = "Bearer " + tamperToken(accessToken, "header");
+        String authHeader = "Bearer " + tamperToken(accessToken, invalidSegment);
 
         mockMvc
             .perform(get("/stub")
@@ -96,45 +103,7 @@ class AuthExceptionHandlerTest {
             .andExpect(status().isUnauthorized())
             .andExpect(content().string(""))
             .andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer error=\"invalid_token\", " +
-                "error_description=\"An error occurred while attempting to decode the Jwt: Malformed token\", " +
-                "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\", " +
-                "resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\""));
-
-        verify(stubService, never()).call();
-    }
-
-    @Test
-    void whenInvalidPayloadJwtToken_thenStatusUnauthorizedAndWWWAuthenticateHeadersAndEmptyBody() throws Exception {
-        JwtService jwtServiceToGenerateToken = new JwtService(this.jwtProperties);
-        String accessToken = jwtServiceToGenerateToken.generateToken(new User("user@example.com", "password", UserRole.FREE_TIER));
-        String authHeader = "Bearer " + tamperToken(accessToken, "payload");
-
-        mockMvc
-            .perform(get("/stub")
-                .header(HttpHeaders.AUTHORIZATION, authHeader))
-            .andExpect(status().isUnauthorized())
-            .andExpect(content().string(""))
-            .andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer error=\"invalid_token\", " +
-                "error_description=\"An error occurred while attempting to decode the Jwt: Malformed payload\", " +
-                "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\", " +
-                "resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\""));
-
-        verify(stubService, never()).call();
-    }
-
-    @Test
-    void whenInvalidSignatureJwtToken_thenStatusUnauthorizedAndWWWAuthenticateHeadersAndEmptyBody() throws Exception {
-        JwtService jwtServiceToGenerateToken = new JwtService(this.jwtProperties);
-        String accessToken = jwtServiceToGenerateToken.generateToken(new User("user@example.com", "password", UserRole.FREE_TIER));
-        String authHeader = "Bearer " + tamperToken(accessToken, "signature");
-
-        mockMvc
-            .perform(get("/stub")
-                .header(HttpHeaders.AUTHORIZATION, authHeader))
-            .andExpect(status().isUnauthorized())
-            .andExpect(content().string(""))
-            .andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer error=\"invalid_token\", " +
-                "error_description=\"An error occurred while attempting to decode the Jwt: Signed JWT rejected: Invalid signature\", " +
+                "error_description=\"An error occurred while attempting to decode the Jwt: %s\", ".formatted(errorMessage) +
                 "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\", " +
                 "resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\""));
 
@@ -185,6 +154,14 @@ class AuthExceptionHandlerTest {
             .andExpect(status().isOk());
 
         verify(stubService, times(1)).premiumCall();
+    }
+
+    private static Stream<Arguments> invalidJwtAndErrorScenarios() {
+        return Stream.of(
+            Arguments.of("header", "Malformed token"),
+            Arguments.of("payload", "Malformed payload"),
+            Arguments.of("signature", "Signed JWT rejected: Invalid signature")
+        );
     }
 
     private static String tamperToken(String jwt, String segment) {
