@@ -3,6 +3,7 @@ package com.miguelbf.exchangerateapi.config.security;
 import com.miguelbf.exchangerateapi.config.properties.JwtProperties;
 import com.miguelbf.exchangerateapi.service.IUserService;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.DispatcherType;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,8 +56,10 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/v3/api-docs.yaml",
                     "/actuator/health",
-                    "/api/auth/**"
+                    "/gw/auth/**"
                 ).permitAll()
+                // Internal servlet forwards are allowed (/gw/** -> /api/**)
+                .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                 // DENY BY DEFAULT
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2
