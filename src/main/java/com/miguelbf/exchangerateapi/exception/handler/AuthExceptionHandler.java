@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 public class AuthExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    @SuppressWarnings("NullAway")
     protected ProblemDetail handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest request) {
         String message;
         Throwable cause = ex.getCause();
@@ -52,13 +51,11 @@ public class AuthExceptionHandler {
             case JsonMappingException jsonMappingException -> "Request could not be mapped to the expected structure.";
             default -> "Failed to read request.";
         };
-        System.out.println("my message " + message + " cause " + cause);
         return ProblemDetails.of(HttpStatus.BAD_REQUEST, message, request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ProblemDetail handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        System.out.println("running handleMethodArgumentNotValid");
         String message = ex.getBindingResult().getFieldErrors().stream()
             .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
             .collect(Collectors.joining(", "));
