@@ -1,3 +1,48 @@
+## [1.2.0](https://github.com/Migas77/ExchangeRate/compare/v1.1.0...v1.2.0) (2026-08-03)
+
+### Features
+
+* **auth:** JWT authentication with signup endpoint and RFC 6750 Section 3 WWW-Authenticate response headers (https://datatracker.ietf.org/doc/html/rfc6750\[#section](https://github.com/Migas77/ExchangeRate/issues/section)-3\). JwtService is reduced to token issuing, with extractSubject, isTokenValid and isRefreshTokenValid being removed. ([e963426](https://github.com/Migas77/ExchangeRate/commit/e963426d7d7daac74e848ec42c2d423112a85472))
+* **auth:** JWT service and properties for generation and validation of token and refresh token JWTs ([f1bbd80](https://github.com/Migas77/ExchangeRate/commit/f1bbd808f88f756a3a873d8cba0af1b721a08176))
+* **auth:** login endpoint ([8cf4ad9](https://github.com/Migas77/ExchangeRate/commit/8cf4ad9be519b3c05ef4b4861e4c6b2a0f174365))
+* **auth:** refresh endpoint. Delegate validation and handling of exceptions to oauth2-resource-server dependency ([770a113](https://github.com/Migas77/ExchangeRate/commit/770a113b77db350b4c31018ebb26b7f146d198e5))
+* **database:** integrate Flyway migrations with Spring Boot ([58e1ee2](https://github.com/Migas77/ExchangeRate/commit/58e1ee2ad11886cf38de417fec0050e99f3fce13))
+
+### Refactors
+
+* **structure:** new service.impl package for implementations (separate from interfaces) ([b00ee8f](https://github.com/Migas77/ExchangeRate/commit/b00ee8fef91bbba574ce69901c03e0cd8452304d))
+
+### Build
+
+* **mvn:** add depedencies spring-boot-starter-data-jpa,spring-boot-starter-security,postgresql,jjwt-api/impl/jackson,spring-boot-starter-flyway,flyway-database-postgresql ([7190b59](https://github.com/Migas77/ExchangeRate/commit/7190b5971532c1e6f7c73c4cddd9acbddcd47e4d))
+* **mvn:** add dependencies spring-boot-starter-data-jpa-test & testcontainers-postgresql ([b377f1a](https://github.com/Migas77/ExchangeRate/commit/b377f1afd1d8b6bb5ef38ef8bbd7bd52b63c6819))
+* **mvn:** add dependency spring-boot-starter-oauth2-resource-server ([ce11465](https://github.com/Migas77/ExchangeRate/commit/ce11465eb8a3a8635037da2b53744b9fa3ce02b8))
+
+### Tests
+
+* **auth-controller:** testing auth controller and exception handling (including WWW Authenticate headers) with mock auth service ([66994ba](https://github.com/Migas77/ExchangeRate/commit/66994ba6e8ed34156e040359655d6e013389a30f))
+* **auth-exception-handler:** premium only stub endpoint to test default 403 insufficient_scope response for a free tier user (and 200 for premium) ([41aaedf](https://github.com/Migas77/ExchangeRate/commit/41aaedf02ffebab355ec0ec1750c58cbbeac515e))
+* **auth-exception-handler:** testing default oauth2ResourceServer 401 handling and RFC 6750 Section 3 WWW-Authenticate response headers against a stub secured endpoint ([6028454](https://github.com/Migas77/ExchangeRate/commit/6028454e6bfcbd4dd3b5e5bae116972a2d7e7d6e))
+* **auth-service:** testing auth service (signup, login and refresh) with mocked user/jwt services and authentication manager (also tested actual configured jwt decoder) ([0e72a26](https://github.com/Migas77/ExchangeRate/commit/0e72a26d3d8c808c004914f9c05ef49866d8626e))
+* **jwt-service:** testing jwt service token issuing and expiration extraction against the configured signing key ([b681bc4](https://github.com/Migas77/ExchangeRate/commit/b681bc4ffbd41209652fea2e0f4231810cd72870))
+* **user-repository:** integration testing user repository findByEmail against a postgres testcontainer ([8d0747f](https://github.com/Migas77/ExchangeRate/commit/8d0747fdc84f7026ef538fea367e5c6609d0bb66))
+* **user-service:** testing user service lookup, creation and UserDetailsService with a mocked user repository ([4b3bcbc](https://github.com/Migas77/ExchangeRate/commit/4b3bcbce40607687ec4908bca1fb065cc5064a42))
+
+### Documentation
+
+* **swagger:** swagger for authentication bearer and corresponding /api/auth endpoints ([fe62fdd](https://github.com/Migas77/ExchangeRate/commit/fe62fdde8011c6df9d795f514b39e68d4341d5c1))
+* **swagger:** swagger schema examples for auth ([6a5fcdc](https://github.com/Migas77/ExchangeRate/commit/6a5fcdceca93eb70c11f9da12308c85d53ce0f28))
+
+### Deployment
+
+* **compose:** add missing env variables to backend container ([8ddc476](https://github.com/Migas77/ExchangeRate/commit/8ddc47655f2df9db20e798e73af3614c6ec7c986))
+* **compose:** add postgres container and segregated networks (one for spring-cache connection, another for spring-db connection) ([e56f29c](https://github.com/Migas77/ExchangeRate/commit/e56f29c3051e2dd98a2202557aa293d23f5d0e7e))
+* missing migas77 repository (image had only tag) ([b04a6a7](https://github.com/Migas77/ExchangeRate/commit/b04a6a796b3a2679442e843eee7b9dd36f1fd7ad))
+
+### CI
+
+* **release:** create ci profile (spring and maven) for ci actions with default env values ([64aab3a](https://github.com/Migas77/ExchangeRate/commit/64aab3ac0f92aec4a26be3877246ec4f9b5b29ae))
+
 ## [1.1.0](https://github.com/Migas77/ExchangeRate/compare/v1.0.0...v1.1.0) (2026-07-31)
 
 ### Features
