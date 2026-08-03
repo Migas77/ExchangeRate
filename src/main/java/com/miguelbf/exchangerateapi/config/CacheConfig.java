@@ -15,12 +15,13 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.serializer.*;
+import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 @Configuration
 @EnableCaching
 @AllArgsConstructor
-@Profile("!no-redis")
+@Profile("!ci & !no-redis")
 public class CacheConfig {
 
     private ExchangeRatesClientProperties exchangeRatesClientProperties;

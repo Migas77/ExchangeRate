@@ -1,6 +1,27 @@
 version: "3.9"
 
 services:
+  database:
+    image: postgres:17@sha256:a426e44bac0b759c95894d68e1a0ac03ecc20b619f498a91aae373bf06d8508d
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 8s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "5"
+    networks:
+      - db-spring-network
 
   redis:
     image: redis:8.10.0-alpine@sha256:5cca2f8a01ef2264c52dac86f14ec6a5abe973a93331e1b62522cfc5e63e4691
@@ -13,7 +34,7 @@ services:
       --save ""
     healthcheck:
       test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
-      interval: 10s
+      interval: 8s
       timeout: 5s
       retries: 5
     logging:
@@ -21,29 +42,39 @@ services:
       options:
         max-size: "10m"
         max-file: "5"
+    networks:
+      - cache-spring-network
 
   backend:
-    image: exchange-rate-api:1.1.0
+    image: migas77/exchange-rate-api:v1.1.0
     container_name: exchangerate-spring
     restart: unless-stopped
     ports:
       - "8080:8080"
     depends_on:
+      database:
+        condition: service_healthy
       redis:
         condition: service_healthy
     environment:
-      EXCHANGE_RATE_API_BASE_URL: https://api.exchangerate.host
-      EXCHANGE_RATE_API_ACCESS_KEY: ${EXCHANGE_RATE_API_ACCESS_KEY}
       APP_CLIENTS_EXCHANGE_RATES_CONNECT_TIMEOUT: 3s
       APP_CLIENTS_EXCHANGE_RATES_READ_TIMEOUT: 8s
       APP_CLIENTS_EXCHANGE_RATES_CACHING_TTL: 1m
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      APP_JWT_JWT_SIGNING_KEY: ${APP_JWT_JWT_SIGNING_KEY}
+      APP_JWT_ACCESS_EXP_TIME: ${APP_JWT_ACCESS_EXP_TIME}
+      APP_JWT_REFRESH_EXP_TIME: ${APP_JWT_REFRESH_EXP_TIME}
+      EXCHANGE_RATE_API_BASE_URL: https://api.exchangerate.host
+      EXCHANGE_RATE_API_ACCESS_KEY: ${EXCHANGE_RATE_API_ACCESS_KEY}
     healthcheck:
       test: [ "CMD", "wget", "-qO-", "http://localhost:8080/actuator/health" ]
       interval: 10s
-      timeout: 5s
+      timeout: 6s
       retries: 5
       start_period: 30s
     logging:
@@ -51,3 +82,13 @@ services:
       options:
         max-size: "50m"
         max-file: "5"
+    networks:
+      - db-spring-network
+      - cache-spring-network
+
+networks:
+  db-spring-network:
+  cache-spring-network:
+
+volumes:
+  db_data:

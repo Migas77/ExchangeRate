@@ -1,12 +1,10 @@
 package com.miguelbf.exchangerateapi.config.properties;
 
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.URL;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
@@ -14,27 +12,20 @@ import org.springframework.validation.annotation.Validated;
 import java.time.Duration;
 
 @Configuration
-@ConfigurationProperties(prefix = "app.clients.exchange-rates")
+@ConfigurationProperties(prefix = "app.jwt")
 @Validated
 @Getter
 @Setter
-public class ExchangeRatesClientProperties {
+public class JwtProperties {
 
     @NotBlank
-    @URL
-    private String baseUrl;
-
-    @NotBlank
-    @Size(min = 32, max = 32)
-    private String accessKey;
+    @Size(min = 32, message = "Signing key must be at least 32 bytes (256 bits) for HS256")
+    private String jwtSigningKey;
 
     @NotNull
-    private Duration connectTimeout = Duration.ofSeconds(5);
+    private Duration accessExpTime;
 
     @NotNull
-    private Duration readTimeout = Duration.ofSeconds(10);
-
-    @NotNull
-    private Duration cachingTtl = Duration.ofMinutes(1);
+    private Duration refreshExpTime;
 
 }

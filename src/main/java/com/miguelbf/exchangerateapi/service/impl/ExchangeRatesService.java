@@ -1,10 +1,11 @@
-package com.miguelbf.exchangerateapi.service;
+package com.miguelbf.exchangerateapi.service.impl;
 
 import com.miguelbf.exchangerateapi.client.IExchangeRatesClientService;
 import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamDataException;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.LiveRates;
 import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
+import com.miguelbf.exchangerateapi.service.IExchangeRatesService;
 import org.jspecify.annotations.Nullable;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;

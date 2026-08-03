@@ -6,11 +6,15 @@ import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
 import com.miguelbf.exchangerateapi.service.IExchangeRatesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -32,12 +36,44 @@ public class ExchangeRatesController {
             By default, rates are returned against all supported currencies. You may optionally specify a
             `target` currency to restrict the response to a single target currency."""
     )
-    @ApiResponses(
+    @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Latest, but **possibly cached** rates snapshot. Inspect `timestamp` to determine freshness of `rates`."
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Bad request — Invalid request parameters.",
+            content = @Content(
+                mediaType = "application/problem+json",
+                schema = @Schema(implementation = ProblemDetail.class),
+                examples = {
+                    @ExampleObject(
+                        name = "Invalid Source Field",
+                        value = """
+                            {
+                              "title": "Bad Request",
+                              "status": 400,
+                              "detail": "Failed to convert 'source' with value: 'null'",
+                              "instance": "/api/rates"
+                            }
+                            """
+                    ),
+                    @ExampleObject(
+                        name = "Missing Source Field",
+                        value = """
+                            {
+                              "title": "Bad Request",
+                              "status": 400,
+                              "detail": "Required parameter 'source' is not present.",
+                              "instance": "/api/rates"
+                            }
+                            """
+                    )
+                }
+            )
         )
-    )
+    })
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public RatesResponse getExchangeRates(

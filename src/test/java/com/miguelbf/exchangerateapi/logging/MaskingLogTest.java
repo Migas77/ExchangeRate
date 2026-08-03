@@ -1,6 +1,7 @@
 package com.miguelbf.exchangerateapi.logging;
 
 import com.miguelbf.exchangerateapi.config.logging.MaskingStructuredLogEncoder;
+import com.miguelbf.exchangerateapi.repository.UserRepository;
 import com.miguelbf.exchangerateapi.utilities.LoggingEvents;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,8 +10,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration;
+import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
@@ -20,8 +26,13 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("no-redis")
+@EnableAutoConfiguration(exclude = {
+    DataSourceAutoConfiguration.class,
+    HibernateJpaAutoConfiguration.class,
+    FlywayAutoConfiguration.class
+})
 class MaskingLogTest {
 
     private static final String MASKED_CONSOLE_APPENDER = "CONSOLE";
@@ -29,6 +40,9 @@ class MaskingLogTest {
 
     private ByteArrayOutputStream logOutput;
     private MaskingStructuredLogEncoder maskingStructuredLogEncoder;
+
+    @MockitoBean
+    UserRepository userRepository;
 
     @BeforeEach
     void captureConsoleAppenderOutput() {

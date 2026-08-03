@@ -1,6 +1,8 @@
 package com.miguelbf.exchangerateapi.controller;
 
+import com.miguelbf.exchangerateapi.exception.handler.AuthExceptionHandler;
 import com.miguelbf.exchangerateapi.exception.handler.GlobalExceptionHandler;
+import com.miguelbf.exchangerateapi.exception.handler.UpstreamExceptionHandler;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
 import com.miguelbf.exchangerateapi.service.IExchangeRatesService;
@@ -48,9 +50,11 @@ class ExchangeRatesControllerMockServiceTest {
     private IExchangeRatesService exchangeRatesService;
 
     @Test
-    void whenExchangeRatesControllerLoaded_thenGlobalExceptionHandlerIsPresent() {
+    void whenExchangeRatesControllerLoaded_thenExceptionHandlersArePresent() {
         // Throws NoSuchBeanDefinitionException if GlobalExceptionHandler not configured
         assertDoesNotThrow(() -> context.getBean(GlobalExceptionHandler.class));
+        assertDoesNotThrow(() -> context.getBean(UpstreamExceptionHandler.class));
+        assertDoesNotThrow(() -> context.getBean(AuthExceptionHandler.class));
     }
 
     @Test
