@@ -1,5 +1,6 @@
 package com.miguelbf.exchangerateapi.controller;
 
+import com.miguelbf.exchangerateapi.config.security.AuthConfig;
 import com.miguelbf.exchangerateapi.exception.handler.AuthExceptionHandler;
 import com.miguelbf.exchangerateapi.exception.handler.GlobalExceptionHandler;
 import com.miguelbf.exchangerateapi.exception.handler.UpstreamExceptionHandler;
@@ -14,6 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -38,6 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ExchangeRatesController.class)
+@Import(AuthConfig.class)
 class ExchangeRatesControllerMockServiceTest {
 
     @Autowired
