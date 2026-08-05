@@ -1,20 +1,22 @@
 package com.miguelbf.exchangerateapi.service;
 
 import com.miguelbf.exchangerateapi.config.properties.JwtProperties;
-import com.miguelbf.exchangerateapi.config.security.SecurityConfig;
+import com.miguelbf.exchangerateapi.config.security.AuthConfig;
+import com.miguelbf.exchangerateapi.config.security.JwtDecoderConfig;
 import com.miguelbf.exchangerateapi.entities.User;
 import com.miguelbf.exchangerateapi.entities.UserRole;
 import com.miguelbf.exchangerateapi.model.dto.*;
 import com.miguelbf.exchangerateapi.service.impl.AuthService;
 import com.miguelbf.exchangerateapi.service.impl.JwtService;
 import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -30,8 +32,8 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -39,20 +41,19 @@ import java.time.temporal.ChronoUnit;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-@ExtendWith(SpringExtension.class)
+@ExtendWith({MockitoExtension.class, SpringExtension.class})
 @EnableConfigurationProperties(JwtProperties.class)
-@ContextConfiguration(classes = JwtProperties.class)
+@ContextConfiguration(classes = {JwtProperties.class, AuthConfig.class, JwtDecoderConfig.class})
 @TestPropertySource(locations = "classpath:application.properties")
 class AuthServiceMockServicesTest {
 
     @Autowired
     JwtProperties jwtProperties;
 
-    @Spy
-    PasswordEncoder passwordEncoder = new SecurityConfig(null, null).passwordEncoder();
+    @MockitoSpyBean
+    PasswordEncoder passwordEncoder;
 
-    @Spy
+    @MockitoSpyBean
     JwtDecoder refreshJwtDecoder;
 
     @InjectMocks
@@ -69,12 +70,6 @@ class AuthServiceMockServicesTest {
 
     @Mock
     Authentication authentication;
-
-    @BeforeEach
-    void setUp() {
-        this.refreshJwtDecoder = new SecurityConfig(this.jwtProperties, null).refreshJwtDecoder();
-        ReflectionTestUtils.setField(authService, "refreshJwtDecoder", this.refreshJwtDecoder);
-    }
 
     @Test
     void givenExistingUserWithEmail_whenSignup_thenReturnNull() {
@@ -206,16 +201,18 @@ class AuthServiceMockServicesTest {
 
         assertEquals("An error occurred while attempting to decode the Jwt: Malformed token", ex.getMessage());
         assertInstanceOf(BadJwtException.class, ex.getCause());
+        verify(refreshJwtDecoder, times(1)).decode(jwtRefreshRequestDTO.refreshToken());
+        verify(userService, never()).getUserByEmail(anyString());
+        verify(jwtService, never()).generateToken(any(User.class));
+        verify(jwtService, never()).extractExpiration(anyString());
     }
 
     @Test
     @SuppressWarnings("NullAway")
     void givenInvalidJwt_whenRefreshToken_ThenThrowsInvalidBearerTokenExceptionWithNullMessage() {
         JwtRefreshRequestDTO jwtRefreshRequestDTO = new JwtRefreshRequestDTO("invalid.invalid.invalid");
-        JwtDecoder delegatingDecoder = mock(JwtDecoder.class, AdditionalAnswers.delegatesTo(this.refreshJwtDecoder));
         BadJwtException thrownException = new BadJwtException(null);
-        doThrow(thrownException).when(delegatingDecoder).decode(jwtRefreshRequestDTO.refreshToken());
-        ReflectionTestUtils.setField(authService, "refreshJwtDecoder", delegatingDecoder);
+        doThrow(thrownException).when(refreshJwtDecoder).decode(jwtRefreshRequestDTO.refreshToken());
 
         InvalidBearerTokenException ex = assertThrows(
             InvalidBearerTokenException.class,
@@ -224,7 +221,7 @@ class AuthServiceMockServicesTest {
 
         assertEquals("Invalid token", ex.getMessage());
         assertEquals(thrownException, ex.getCause());
-        verify(delegatingDecoder, times(1)).decode(jwtRefreshRequestDTO.refreshToken());
+        verify(refreshJwtDecoder, times(1)).decode(jwtRefreshRequestDTO.refreshToken());
         verify(userService, never()).getUserByEmail(anyString());
         verify(jwtService, never()).generateToken(any(User.class));
         verify(jwtService, never()).extractExpiration(anyString());
@@ -237,10 +234,8 @@ class AuthServiceMockServicesTest {
     @SuppressWarnings("NullAway")
     void givenInvalidJwt_whenRefreshTokenAndUnexpectedError_thenThrowsJwtException(@Nullable String errorMessage) {
         JwtRefreshRequestDTO jwtRefreshRequestDTO = new JwtRefreshRequestDTO("unexpected.unexpected.unexpected");
-        JwtDecoder delegatingDecoder = mock(JwtDecoder.class, AdditionalAnswers.delegatesTo(this.refreshJwtDecoder));
         JwtException thrownException = new JwtException(errorMessage);
-        doThrow(thrownException).when(delegatingDecoder).decode(jwtRefreshRequestDTO.refreshToken());
-        ReflectionTestUtils.setField(authService, "refreshJwtDecoder", delegatingDecoder);
+        doThrow(thrownException).when(refreshJwtDecoder).decode(jwtRefreshRequestDTO.refreshToken());
 
         AuthenticationServiceException ex = assertThrows(
             AuthenticationServiceException.class,
@@ -249,7 +244,7 @@ class AuthServiceMockServicesTest {
 
         assertEquals(errorMessage != null ? errorMessage : "Invalid token", ex.getMessage());
         assertEquals(thrownException, ex.getCause());
-        verify(delegatingDecoder, times(1)).decode(jwtRefreshRequestDTO.refreshToken());
+        verify(refreshJwtDecoder, times(1)).decode(jwtRefreshRequestDTO.refreshToken());
         verify(userService, never()).getUserByEmail(anyString());
         verify(jwtService, never()).generateToken(any(User.class));
         verify(jwtService, never()).extractExpiration(anyString());
@@ -268,6 +263,7 @@ class AuthServiceMockServicesTest {
 
         assertEquals("Only refresh tokens can be used to refresh access token", ex.getMessage());
         assertInstanceOf(BadJwtException.class, ex.getCause());
+        verify(refreshJwtDecoder, times(1)).decode(jwtRefreshRequestDTO.refreshToken());
         verify(userService, never()).getUserByEmail(anyString());
         verify(jwtService, never()).generateToken(any(User.class));
         verify(jwtService, never()).extractExpiration(anyString());
@@ -290,6 +286,7 @@ class AuthServiceMockServicesTest {
         assertNotNull(jwtRefreshResponseDTO);
         assertEquals(accessToken, jwtRefreshResponseDTO.accessToken());
         assertTrue(jwtRefreshResponseDTO.expiresIn() > expiresIn - 10);
+        verify(refreshJwtDecoder, times(1)).decode(jwtRefreshRequestDTO.refreshToken());
         verify(userService, times(1)).getUserByEmail(user.getUsername());
         verify(jwtService, times(1)).generateToken(user);
         verify(jwtService, times(1)).extractExpiration(accessToken);
@@ -306,6 +303,7 @@ class AuthServiceMockServicesTest {
         JwtRefreshResponseDTO jwtRefreshResponseDTO = authService.refresh(jwtRefreshRequestDTO);
 
         assertNull(jwtRefreshResponseDTO);
+        verify(refreshJwtDecoder, times(1)).decode(jwtRefreshRequestDTO.refreshToken());
         verify(userService, never()).getUserByEmail(anyString());
         verify(jwtService, never()).generateToken(any(User.class));
         verify(jwtService, never()).extractExpiration(anyString());
@@ -322,6 +320,7 @@ class AuthServiceMockServicesTest {
         JwtRefreshResponseDTO jwtRefreshResponseDTO = authService.refresh(jwtRefreshRequestDTO);
 
         assertNull(jwtRefreshResponseDTO);
+        verify(refreshJwtDecoder, times(1)).decode(jwtRefreshRequestDTO.refreshToken());
         verify(userService, times(1)).getUserByEmail(user.getUsername());
         verify(jwtService, never()).generateToken(any(User.class));
         verify(jwtService, never()).extractExpiration(anyString());

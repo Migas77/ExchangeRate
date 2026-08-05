@@ -39,6 +39,7 @@ public class OpenAPIConfig {
 
     private static final String BEARER_AUTH_SCHEME = "bearerAuth";
     private static final String AUTH_PATH_PREFIX = "/api/auth";
+    private static final String GATEWAY_BASE_URL = "http://localhost:8080/gw";
 
     ApplicationProperties applicationProperties;
 
@@ -55,20 +56,28 @@ public class OpenAPIConfig {
                     conversion calculations. Standard API errors are expressed through the `Problem Details` data type \
                     according to [RFC 9457 Problem Details for HTTP APIs](https://datatracker.ietf.org/doc/html/rfc9457).
                     
+                    ## Base Path & Rate Limiting
+                    
+                    All endpoints are served under the `/gw` base path, which strips the `/gw` prefix and \
+                    forwards the remaining path internally, while applying a per-caller rate limit \
+                    of 10 requests per minute, keyed by user for authenticated requests, and by IP otherwise. \
+                    Exceeding it returns `429 Too Many Requests`. The paths below are relative to that base \
+                    path, so the operation documented as `/api/rates` is called as `GET /gw/api/rates`.
+                    
                     ## Authentication & Authorization
                     
                     Every endpoint is protected and requires a JWT bearer token, except \
-                    `/api/auth`, `.well-known/oauth-protected-resource`, `/swagger-ui/**`, `/v3/api-docs/**` and \
+                    `/gw/api/auth`, `.well-known/oauth-protected-resource`, `/swagger-ui/**`, `/v3/api-docs/**` and \
                     `/actuator/health`.
                     
-                    1. Create an account with `POST /api/auth/signup`, or authenticate an existing one with \
-                    `POST /api/auth/login`. Both return an `accessToken`, a `refreshToken` and `expiresIn`.
+                    1. Create an account with `POST /gw/api/auth/signup`, or authenticate an existing one with \
+                    `POST /gw/api/auth/login`. Both return an `accessToken`, a `refreshToken` and `expiresIn`.
                     
                     2. Send the access token on every subsequent request in the `Authorization` header:
                     `Authorization: Bearer <accessToken>`.
                     
                     3. When the access token expires, exchange the refresh token for a new access token \
-                    with `POST /api/auth/refresh`.
+                    with `POST /gw/api/auth/refresh`.
                     
                     In the **Swagger UI**, click **Authorize** and paste the raw `accessToken` (without the \
                     `Bearer ` prefix) to have it sent automatically. Passing refresh token here will be accepted by \
@@ -86,7 +95,7 @@ public class OpenAPIConfig {
                 .description("Full Documentation (Github)")
                 .url("https://github.com/Migas77/ExchangeRate"))
             .servers(List.of(
-                new Server().url("http://localhost:8080").description("Development (HTTP)")
+                new Server().url(GATEWAY_BASE_URL).description("Development (HTTP)")
             ))
             .components(new Components()
                 .addSecuritySchemes(BEARER_AUTH_SCHEME, new SecurityScheme()
@@ -97,12 +106,12 @@ public class OpenAPIConfig {
                     .name("Authorization")
                     .description("""
                         HMAC-signed JWT access token sent as `Authorization: Bearer <accessToken>` and obtained from:
-                        - `POST /api/auth/signup`
-                        - `POST /api/auth/login`
-                        - `POST /api/auth/refresh`
+                        - `POST /gw/api/auth/signup`
+                        - `POST /gw/api/auth/login`
+                        - `POST /gw/api/auth/refresh`
                         
                         Refresh tokens with claim `"type": "refresh"` will be explicitly rejected by the api \
-                        being only accepted in the body of the refresh token endpoint: `POST /api/auth/refresh`.""")))
+                        being only accepted in the body of the refresh token endpoint: `POST /gw/api/auth/refresh`.""")))
             // opt out with @SecurityRequirements({})
             .addSecurityItem(new SecurityRequirement().addList(BEARER_AUTH_SCHEME));
     }

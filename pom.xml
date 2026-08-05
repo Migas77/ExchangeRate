@@ -29,7 +29,7 @@
 	<properties>
 		<sonar.organization>migas77</sonar.organization>
 		<sonar.coverage.exclusions>
-			**/config/OpenAPIConfig.java,**/config/CacheConfig.java,**/config/security/SecurityConfig.java
+			**/config/OpenAPIConfig.java,**/config/CacheConfig.java,**/config/GatewayConfig.java,**/config/security/SecurityConfig.java
 		</sonar.coverage.exclusions>
 		<java.version>21</java.version>
 		<maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
@@ -40,9 +40,18 @@
 		<springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
 		<springdoc-openapi-maven-plugin.version>1.5</springdoc-openapi-maven-plugin.version>
 		<io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
+		<spring-cloud.version>2025.1.2</spring-cloud.version>
+		<bucket4j_jdk17.version>8.19.0</bucket4j_jdk17.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.testcontainers</groupId>
 				<artifactId>testcontainers-bom</artifactId>
@@ -109,6 +118,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-restclient-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-webtestclient</artifactId>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -185,6 +199,28 @@
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-database-postgresql</artifactId>
 		</dependency>
+		<!-- Spring Cloud -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-gateway-server-webmvc</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<!-- Rate Limiter (com.bucket4j with redis) -->
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j_jdk17-core</artifactId>
+			<version>${bucket4j_jdk17.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j_jdk17-redis-common</artifactId>
+			<version>${bucket4j_jdk17.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j_jdk17-lettuce</artifactId>
+			<version>${bucket4j_jdk17.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -202,6 +238,7 @@
 					<excludes>
 						<exclude>**/config/OpenAPIConfig.class</exclude>
 						<exclude>**/config/CacheConfig.class</exclude>
+						<exclude>**/config/GatewayConfig.class</exclude>
 						<exclude>**/config/security/SecurityConfig.class</exclude>
 					</excludes>
 				</configuration>
@@ -305,7 +342,7 @@
 									<goal>generate</goal>
 								</goals>
 								<configuration>
-									<apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+									<apiDocsUrl>http://localhost:8080/gw/v3/api-docs</apiDocsUrl>
 									<outputFileName>openapi.json</outputFileName>
 									<outputDir>${project.build.directory}</outputDir>
 								</configuration>
@@ -316,7 +353,7 @@
 									<goal>generate</goal>
 								</goals>
 								<configuration>
-									<apiDocsUrl>http://localhost:8080/v3/api-docs.yaml</apiDocsUrl>
+									<apiDocsUrl>http://localhost:8080/gw/v3/api-docs.yaml</apiDocsUrl>
 									<outputFileName>openapi.yaml</outputFileName>
 									<outputDir>${project.build.directory}</outputDir>
 								</configuration>

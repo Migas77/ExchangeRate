@@ -1,18 +1,16 @@
 package com.miguelbf.exchangerateapi.controller;
 
-import com.miguelbf.exchangerateapi.config.security.SecurityConfig;
+import com.miguelbf.exchangerateapi.config.security.AuthConfig;
 import com.miguelbf.exchangerateapi.exception.handler.AuthExceptionHandler;
 import com.miguelbf.exchangerateapi.exception.handler.GlobalExceptionHandler;
 import com.miguelbf.exchangerateapi.exception.handler.UpstreamExceptionHandler;
 import com.miguelbf.exchangerateapi.model.dto.*;
 import com.miguelbf.exchangerateapi.service.IAuthService;
-import com.miguelbf.exchangerateapi.service.IUserService;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Answers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.ApplicationContext;
@@ -40,7 +38,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthController.class)
-@Import(SecurityConfig.class)
+@Import(AuthConfig.class)
 class AuthControllerMockServiceTest {
 
     @Autowired
@@ -54,9 +52,6 @@ class AuthControllerMockServiceTest {
 
     @MockitoBean
     private IAuthService authService;
-
-    @MockitoBean(answers = Answers.RETURNS_MOCKS)
-    private IUserService userService;
 
     @Test
     void whenExchangeRatesControllerLoaded_thenExceptionHandlersArePresent() {
