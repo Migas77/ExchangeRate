@@ -336,7 +336,7 @@
 									<goal>generate</goal>
 								</goals>
 								<configuration>
-									<apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+									<apiDocsUrl>http://localhost:8080/gw/v3/api-docs</apiDocsUrl>
 									<outputFileName>openapi.json</outputFileName>
 									<outputDir>${project.build.directory}</outputDir>
 								</configuration>
@@ -347,7 +347,7 @@
 									<goal>generate</goal>
 								</goals>
 								<configuration>
-									<apiDocsUrl>http://localhost:8080/v3/api-docs.yaml</apiDocsUrl>
+									<apiDocsUrl>http://localhost:8080/gw/v3/api-docs.yaml</apiDocsUrl>
 									<outputFileName>openapi.yaml</outputFileName>
 									<outputDir>${project.build.directory}</outputDir>
 								</configuration>

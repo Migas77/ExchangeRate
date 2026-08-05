@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.miguelbf.exchangerateapi.controller.AuthController;
 import com.miguelbf.exchangerateapi.exception.ProblemDetails;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -15,6 +18,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -23,12 +27,16 @@ import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
+import java.io.IOException;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice(assignableTypes = AuthController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
+@AllArgsConstructor
 public class AuthExceptionHandler {
+
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     protected ProblemDetail handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest request) {
@@ -72,13 +80,15 @@ public class AuthExceptionHandler {
     }
 
     @ExceptionHandler({InvalidBearerTokenException.class, AuthenticationServiceException.class})
-    protected ProblemDetail handleAuthenticationException(
-        AuthenticationException ex, HttpServletRequest request
-    ) {
-        // These exceptions can be thrown when manually validating refresh access token in /api/auth/refresh endpoint
-        // These AuthenticationException subtypes will be rethrown so that ExceptionTranslationFilter
-        // (not this handler) produces the RFC 6750 401 + WWW-Authenticate response.
-        throw ex;
+    protected void handleAuthenticationException(
+        AuthenticationException ex, HttpServletRequest request, HttpServletResponse response
+    ) throws IOException, ServletException {
+        /*
+         * Exceptions from manual refresh-token validation in /api/auth/refresh are delegated directly
+         * to the same {@link org.springframework.security.web.access.ExceptionTranslationFilter}
+         * AuthenticationEntryPoint, producing the RFC 6750 401 + WWW-Authenticate response inline.
+         */
+        authenticationEntryPoint.commence(request, response, ex);
     }
 
 }

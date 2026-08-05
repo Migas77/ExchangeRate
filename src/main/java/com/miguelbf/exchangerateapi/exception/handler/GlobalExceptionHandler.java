@@ -5,21 +5,30 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.io.IOException;
+
 @Slf4j
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
+@AllArgsConstructor
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    private final AccessDeniedHandler accessDeniedHandler;
 
     @ExceptionHandler(Exception.class)
     @ApiResponse(
@@ -50,16 +59,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ProblemDetails.of(httpStatus, detail, request);
     }
 
-    /**
-     * For some reason without this exception handler
-     * the default {@link org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler}
-     * configured in {@link com.miguelbf.exchangerateapi.config.security.SecurityConfig}
-     * doesn't work properly (triggering 500 INTERNAL_SERVER_ERROR instead).
-     */
     @ExceptionHandler(AuthorizationDeniedException.class)
-    public ProblemDetail handleAuthorizationDenied(AuthorizationDeniedException ex) {
-        throw ex;
+    public void handleAuthorizationDenied(
+        AuthorizationDeniedException ex, HttpServletRequest request, HttpServletResponse response
+    ) throws IOException, ServletException {
+        /*
+         * For some reason without this exception handler
+         * the default {@link org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler}
+         * configured in {@link com.miguelbf.exchangerateapi.config.security.SecurityConfig}
+         * isn't triggered (triggering 500 INTERNAL_SERVER_ERROR instead).
+         */
+        accessDeniedHandler.handle(request, response, ex);
     }
-
 
 }
