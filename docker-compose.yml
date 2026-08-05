@@ -46,7 +46,7 @@ services:
       - cache-spring-network
 
   backend:
-    image: migas77/exchange-rate-api:v1.2.0
+    image: migas77/exchange-rate-api:v2.0.0
     container_name: exchangerate-spring
     restart: unless-stopped
     ports:

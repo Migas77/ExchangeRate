@@ -1,3 +1,40 @@
+## [2.0.0](https://github.com/Migas77/ExchangeRate/compare/v1.2.0...v2.0.0) (2026-08-05)
+
+### ⚠ BREAKING CHANGES
+
+* **gateway:** changed API contract. All API endpoints are now prefixed with /gw. This is also true for documentation (swagger) endpoints.
+
+Rate limiting:
+  - Rate limit key "b4j::user:<sub>" or "b4j::ip:<remoteAddr>" for authenticated and anonymous requests, respectively
+  - Capacity, period and timeout defaulted to 10, 1m and 500ms, repsectively
+  - Rate limit uses redis in production and ConcurrentHashMap for ci and no-redis profiles
+
+Configuration refactors:
+  - SecurityConfig contains now two filter chains: 1. for oauth resource server and jwt auth; 2. for deny all
+  - AuthExceptionHandler and GlobalExceptionHandler no longer rethrow exceptions and calls AuthenticationEntryPoint/AccessDeniedHandler directly to produce the RFC 6750 401/403 responses
+
+At this commit, tests are broken and the swagger docs outdated, i.e. not updated for /gw prefix
+
+### Features
+
+* **gateway:** spring cloud gateway with rate limiting (TOKEN BUCKET alg with bucket4j and redis for anonymous (ip) and auth users) routes traffic from /gw prefix to apis (direct access to controllers blocked) ([34d34e0](https://github.com/Migas77/ExchangeRate/commit/34d34e035c7082de3a76fc02f7d23727e7476ef8))
+* **rate-limiter:** simple bucket4j rate limitter setup with redis cache using spring cloud gateway ([9ac0de1](https://github.com/Migas77/ExchangeRate/commit/9ac0de1345b6d7e075f3d0ae4cfb959792ec4a9a))
+
+### Build
+
+* **mvn:** add dependencies spring-boot-webtestclient and new ignores for jacoco/sonar ([7499129](https://github.com/Migas77/ExchangeRate/commit/74991298024421b28f8eb6b4e1b1720cf8f620cf))
+* **mvn:** add dependencies spring-cloud-starter-gateway-server-webmvc bucket4j_jdk17-core bucket4j_jdk17-redis-common and BOM spring-cloud-dependencies ([b466b23](https://github.com/Migas77/ExchangeRate/commit/b466b237a6d3740e03accc9f38989597e4c29ca5))
+
+### Tests
+
+* adapt tests to new bean config ([7caf51c](https://github.com/Migas77/ExchangeRate/commit/7caf51c6a93ec9b61c00be885da1b937b9201b60))
+* **gateway:** integration testing gateway auth and rate limiting against a redis testcontainer ([b3b0120](https://github.com/Migas77/ExchangeRate/commit/b3b01206ff9faae861e152d1c88cf33cc03ba78a))
+* **gateway:** testing gateway routing, auth and rate limiting against the /gw prefixed routes, replacing AuthExceptionHandlerTest ([d363b86](https://github.com/Migas77/ExchangeRate/commit/d363b8669c227443b97ef76de6e425e05c6bb10b))
+
+### Documentation
+
+* **swagger:** change swagger to cater to new /gw gateway prefix ([2209a19](https://github.com/Migas77/ExchangeRate/commit/2209a194f1eaf9daeca21b8dbdae0f98aa7a624a))
+
 ## [1.2.0](https://github.com/Migas77/ExchangeRate/compare/v1.1.0...v1.2.0) (2026-08-03)
 
 ### Features
