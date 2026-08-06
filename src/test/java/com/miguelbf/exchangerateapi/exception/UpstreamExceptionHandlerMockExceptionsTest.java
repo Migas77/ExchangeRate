@@ -220,11 +220,11 @@ class UpstreamExceptionHandlerMockExceptionsTest {
             LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "req_target")
         );
         assertEquals(
-            objectMapper.writeValueAsString(exception.getLiveRates().getSource()),
+            objectMapper.writeValueAsString(exception.getActSource()),
             LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "act_source")
         );
         assertEquals(
-            objectMapper.writeValueAsString(exception.getLiveRates().getQuotes()),
+            objectMapper.writeValueAsString(exception.getActQuotes()),
             LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "act_quotes")
         );
         assertInstanceOf(exception.getClass(), throwable);

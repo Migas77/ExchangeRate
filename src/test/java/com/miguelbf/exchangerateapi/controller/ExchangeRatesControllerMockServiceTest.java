@@ -6,6 +6,7 @@ import com.miguelbf.exchangerateapi.exception.handler.GlobalExceptionHandler;
 import com.miguelbf.exchangerateapi.exception.handler.UpstreamExceptionHandler;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
+import com.miguelbf.exchangerateapi.service.IConversionService;
 import com.miguelbf.exchangerateapi.service.IExchangeRatesService;
 import com.miguelbf.exchangerateapi.utilities.ArgumentCombinations;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,9 @@ class ExchangeRatesControllerMockServiceTest {
     @MockitoBean
     private IExchangeRatesService exchangeRatesService;
 
+    @MockitoBean
+    private IConversionService conversionService;
+
     @Test
     void whenExchangeRatesControllerLoaded_thenExceptionHandlersArePresent() {
         // Throws NoSuchBeanDefinitionException if GlobalExceptionHandler not configured
@@ -81,7 +85,7 @@ class ExchangeRatesControllerMockServiceTest {
     }
 
     @Test
-    void whenOnlyFromValidQueryParameter_thenStatusOkAndReturnAllRates() throws Exception {
+    void whenOnlySourceValidQueryParameter_thenStatusOkAndReturnAllRates() throws Exception {
         when(exchangeRatesService.getRates(Currency.USD, null))
             .thenReturn(new RatesResponse(1L, Currency.USD, Map.of(
                 Currency.EUR, new BigDecimal("0.85"),
@@ -106,34 +110,33 @@ class ExchangeRatesControllerMockServiceTest {
     }
 
     @Test
-    void whenFromAndToValidQueryParameters_thenStatusOkAndReturnSingleRate() throws Exception {
-        // shall not reject the request despite from and to query parameters being the same
-        when(exchangeRatesService.getRates(Currency.EUR, Currency.EUR))
-            .thenReturn(new RatesResponse(1L, Currency.EUR, Map.of(Currency.EUR, new BigDecimal("1.0"))));
+    void whenSourceAndTargetValidQueryParameters_thenStatusOkAndReturnSingleRate() throws Exception {
+        when(exchangeRatesService.getRates(Currency.USD, Currency.EUR))
+            .thenReturn(new RatesResponse(1L, Currency.USD, Map.of(Currency.EUR, new BigDecimal("0.85"))));
 
         mockMvc
             .perform(
                 get("/api/rates")
-                    .queryParam("source", Currency.EUR.name())
+                    .queryParam("source", Currency.USD.name())
                     .queryParam("target", Currency.EUR.name())
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.timestamp", is(1)))
-            .andExpect(jsonPath("$.source", is(Currency.EUR.name())))
+            .andExpect(jsonPath("$.source", is(Currency.USD.name())))
             .andExpect(jsonPath("$.rates", aMapWithSize(1)))
-            .andExpect(jsonPath("$.rates.EUR", is(1.0)));
+            .andExpect(jsonPath("$.rates.EUR", is(0.85)));
 
-        verify(exchangeRatesService, times(1)).getRates(Currency.EUR, Currency.EUR);
+        verify(exchangeRatesService, times(1)).getRates(Currency.USD, Currency.EUR);
     }
 
-    @ParameterizedTest(name = "[{index}] from={0} to={1}")
+    @ParameterizedTest(name = "[{index}] source={0} target={1}")
     @MethodSource("invalidQueryParams")
-    void whenInvalidQueryParameters_thenStatusBadRequestAndReturnProblemDetail(Object from, Object to) throws Exception {
+    void whenInvalidQueryParameters_thenStatusBadRequestAndReturnProblemDetail(Object source, Object target) throws Exception {
         // Default Problem Detail handled by Spring
 
         MockHttpServletRequestBuilder request = get("/api/rates").contentType(MediaType.APPLICATION_JSON);
-        if (from != null) request = request.queryParam("source", from.toString());
-        if (to != null) request = request.queryParam("target", to.toString());
+        if (source != null) request = request.queryParam("source", source.toString());
+        if (target != null) request = request.queryParam("target", target.toString());
 
         mockMvc
             .perform(request)
@@ -148,14 +151,14 @@ class ExchangeRatesControllerMockServiceTest {
 
 
     private static Stream<Arguments> invalidQueryParams() {
-        List<Object> validFroms = List.of(Currency.USD);
-        List<Object> validTos = List.of(Currency.EUR);
-        List<Object> invalidFroms = Arrays.asList(null, "null", "zzz", 1, "%s,%s".formatted(Currency.USD, Currency.EUR));
-        List<Object> invalidTos = Arrays.asList("null", "zzz", 1, "%s,%s".formatted(Currency.USD, Currency.EUR));
+        List<Object> validSources = List.of(Currency.USD);
+        List<Object> validTargets = List.of(Currency.EUR);
+        List<Object> invalidSources = Arrays.asList(null, "null", "zzz", 1, "%s,%s".formatted(Currency.USD, Currency.EUR));
+        List<Object> invalidTargets = Arrays.asList("null", "zzz", 1, "%s,%s".formatted(Currency.USD, Currency.EUR));
 
-        Stream<Arguments> invalidFromWithValidTo = ArgumentCombinations.allCombinations(invalidFroms, validTos);
-        Stream<Arguments> validFromWithInvalidTo = ArgumentCombinations.allCombinations(validFroms, invalidTos);
+        Stream<Arguments> invalidSourceWithValidTarget = ArgumentCombinations.allCombinations(invalidSources, validTargets);
+        Stream<Arguments> validSourceWithInvalidTarget = ArgumentCombinations.allCombinations(validSources, invalidTargets);
 
-        return Stream.concat(invalidFromWithValidTo, validFromWithInvalidTo);
+        return Stream.concat(invalidSourceWithValidTarget, validSourceWithInvalidTarget);
     }
 }

@@ -162,6 +162,8 @@ public class UpstreamExceptionHandler {
                 "Upstream returned unexpected target currency";
             case RatesUpstreamDataException.UnexpectedQuoteCount unexpectedQuoteCount ->
                 "Upstream returned unexpected quote count";
+            case RatesUpstreamDataException.MissingTarget missingTarget ->
+                "Upstream response missing target currency";
         };
         log.atError().setMessage(message).setCause(ex).log();
         return ProblemDetails.of(httpStatus, detail, request);
