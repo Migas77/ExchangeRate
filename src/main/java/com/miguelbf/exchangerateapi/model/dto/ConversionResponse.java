@@ -9,21 +9,21 @@ import java.util.Map;
 
 public record ConversionResponse(
 
-    @Schema(description = "Unix timestamp of when rates were fetched", example = "1785667963")
+    @Schema(description = "Unix timestamp of when rates were fetched", example = "1786031345")
     @JsonProperty(required = true) long timestamp,
 
-    @Schema(description = "The numerical amount that is converted, expressed in the `source` currency.")
+    @Schema(description = "The numerical amount that is converted, expressed in the `source` currency.", example = "120")
     @JsonProperty(required = true) BigDecimal amount,
 
-    @Schema(description = "Base currency the rates are relative to")
+    @Schema(description = "Base currency the rates are relative to", example = "AED")
     @JsonProperty(required = true) Currency source,
 
     @Schema(
         description = "Map of currency code to exchange rate value",
         example = """
             {
-              "USD": 0.27,
-              "EUR": 0.25
+              "EUR": 0.236283,
+              "USD": 0.272294
             }
             """
     )
@@ -33,8 +33,8 @@ public record ConversionResponse(
         description = "Map of currency code to converted value based on rate specified in `rates`",
         example = """
             {
-              "USD": 27.0,
-              "EUR": 25.0
+              "EUR": 28.35396,
+              "USD": 32.67528
             }
             """
     )

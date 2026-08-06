@@ -79,6 +79,18 @@ public class ExchangeRatesController {
                               "instance": "/api/rates"
                             }
                             """
+                    ),
+                    @ExampleObject(
+                        name = "Matching Source and Target Currencies",
+                        value = """
+                            {
+                              "title": "Bad Request",
+                              "status": 400,
+                              "detail": "Source and target currency must not match: EUR",
+                              "instance": "/api/rates",
+                              "type": "about:blank"
+                            }
+                            """
                     )
                 }
             )
@@ -106,10 +118,72 @@ public class ExchangeRatesController {
     @Operation(
         summary = "Get numeric value conversion according to current exchange rates",
         description = """
-            Converts the value `amount` from the `source` currency to one or multiple currencies \
+            Converts the value `amount` from the `source` currency to one or multiple currencies. \
             By default, the converted amount and respective rates are returned against all supported currencies.
             You may optionally specify one or multiple `targets` currencies to restrict the response to the specified currencies."""
     )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Converted amounts based on the latest, but **possibly cached** rates snapshot. Inspect `timestamp` to determine freshness of `rates`."
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Bad request — Invalid request parameters.",
+            content = @Content(
+                mediaType = "application/problem+json",
+                schema = @Schema(implementation = ProblemDetail.class),
+                examples = {
+                    @ExampleObject(
+                        name = "Invalid Amount Field",
+                        value = """
+                            {
+                              "title": "Bad Request",
+                              "status": 400,
+                              "detail": "Failed to convert 'amount' with value: 'abc'",
+                              "instance": "/api/conversions"
+                            }
+                            """
+                    ),
+                    @ExampleObject(
+                        name = "Amount Field Out of Allowed Range",
+                        value = """
+                            {
+                              "title": "Bad Request",
+                              "status": 400,
+                              "detail": "amount: amount must be less than or equal to 1000000000, amount: amount must have at most 10 integer digit(s) and 6 fractional digit(s)",
+                              "instance": "/api/conversions",
+                              "type": "about:blank"
+                            }
+                            """
+                    ),
+                    @ExampleObject(
+                        name = "Missing Amount Field",
+                        value = """
+                            {
+                              "title": "Bad Request",
+                              "status": 400,
+                              "detail": "Required parameter 'amount' is not present.",
+                              "instance": "/api/conversions"
+                            }
+                            """
+                    ),
+                    @ExampleObject(
+                        name = "Matching Source and Target Currencies",
+                        value = """
+                            {
+                              "title": "Bad Request",
+                              "status": 400,
+                              "detail": "Source and target currencies must not match: EUR",
+                              "instance": "/api/conversions",
+                              "type": "about:blank"
+                            }
+                            """
+                    )
+                }
+            )
+        )
+    })
     @GetMapping("/conversions")
     @ResponseStatus(HttpStatus.OK)
     public ConversionResponse getValueConversions(

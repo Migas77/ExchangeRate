@@ -8,18 +8,18 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 public record RatesResponse(
-    @Schema(description = "Unix timestamp of when rates were fetched", example = "1785667963")
+    @Schema(description = "Unix timestamp of when rates were fetched", example = "1786031345")
     @JsonProperty(required = true) long timestamp,
 
-    @Schema(description = "Base currency the rates are relative to")
+    @Schema(description = "Base currency the rates are relative to", example = "AED")
     @JsonProperty(required = true) Currency source,
 
     @Schema(
         description = "Map of currency code to exchange rate value",
         example = """
             {
-              "USD": 0.27,
-              "EUR": 0.25
+              "EUR": 0.236283,
+              "USD": 0.272294
             }
             """
     )
