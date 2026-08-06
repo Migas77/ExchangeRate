@@ -1,3 +1,14 @@
+## [2.1.0](https://github.com/Migas77/ExchangeRate/compare/v2.0.0...v2.1.0) (2026-08-06)
+
+### Features
+
+* **conversion:** controller endpoint and conversion service with BigDecimal currency value conversion ([31e87bc](https://github.com/Migas77/ExchangeRate/commit/31e87bc8331f613c6d599b4f60093c918ddf0896))
+
+### Tests
+
+* **conversion:** testing /api/conversions endpoint with mock conversion service ([d4b4f2e](https://github.com/Migas77/ExchangeRate/commit/d4b4f2ec42bcc7811269c4e98306296d381265aa))
+* **conversion:** unit testing ConversionService against a mocked exchange rates service ([0e46d99](https://github.com/Migas77/ExchangeRate/commit/0e46d9909bcb57e5aa6ac42def6212c587050364))
+
 ## [2.0.0](https://github.com/Migas77/ExchangeRate/compare/v1.2.0...v2.0.0) (2026-08-05)
 
 ### ⚠ BREAKING CHANGES
