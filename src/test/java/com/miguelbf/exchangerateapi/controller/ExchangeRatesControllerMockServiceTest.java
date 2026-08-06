@@ -5,6 +5,7 @@ import com.miguelbf.exchangerateapi.config.security.AuthConfig;
 import com.miguelbf.exchangerateapi.exception.handler.AuthExceptionHandler;
 import com.miguelbf.exchangerateapi.exception.handler.GlobalExceptionHandler;
 import com.miguelbf.exchangerateapi.exception.handler.UpstreamExceptionHandler;
+import com.miguelbf.exchangerateapi.exception.handler.ValidationExceptionHandler;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.dto.ConversionResponse;
 import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
@@ -17,7 +18,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.ApplicationContext;
@@ -69,6 +69,7 @@ class ExchangeRatesControllerMockServiceTest {
         assertDoesNotThrow(() -> context.getBean(GlobalExceptionHandler.class));
         assertDoesNotThrow(() -> context.getBean(UpstreamExceptionHandler.class));
         assertDoesNotThrow(() -> context.getBean(AuthExceptionHandler.class));
+        assertDoesNotThrow(() -> context.getBean(ValidationExceptionHandler.class));
     }
 
     @Test
@@ -342,7 +343,6 @@ class ExchangeRatesControllerMockServiceTest {
         verify(conversionService, times(1)).convertValue(
             new BigDecimal(1000), Currency.USD, Set.of(Currency.EUR));
     }
-
 
 
     private static Stream<Arguments> invalidGetApiRatesQueryParams() {

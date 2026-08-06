@@ -1,10 +1,12 @@
 package com.miguelbf.exchangerateapi.exception.exception;
 
 import com.miguelbf.exchangerateapi.config.logging.CustomLogStructureFields;
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
+@Getter
 public class IllegalConversionException extends RuntimeException implements CustomLogStructureFields {
 
     private final int integerDigits;
