@@ -8,6 +8,10 @@ API that fetches exchange-rates from publicly available API and uses them for co
 
 ---
 
+# REMINDER CHANGE README
+
+---
+
 Null Safety in the Spring Framework:
 - [Spring Framework / Core Technologies / Null-safety](https://docs.spring.io/spring-framework/reference/core/null-safety.html)
 - [Null Safety in Spring applications with JSpecify and NullAway](https://spring.io/blog/2025/03/10/null-safety-in-spring-apps-with-jspecify-and-null-away)

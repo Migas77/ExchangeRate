@@ -57,6 +57,10 @@ class ConversionServiceMockServicesTest {
         assertEquals("Unexpected amount shape", illegalConversionException.getMessage());
         assertEquals(decimalDigits, illegalConversionException.getDecimalDigits());
         assertEquals(integerDigits, illegalConversionException.getIntegerDigits());
+        assertEquals(
+            Map.of("integerDigits", integerDigits, "decimalDigits", decimalDigits),
+            illegalConversionException.getLogStructureFields()
+        );
         verify(exchangeRatesService, never()).getRates(any(), any());
     }
 
