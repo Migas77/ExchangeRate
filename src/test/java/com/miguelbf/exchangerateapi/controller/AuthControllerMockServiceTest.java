@@ -4,6 +4,7 @@ import com.miguelbf.exchangerateapi.config.security.AuthConfig;
 import com.miguelbf.exchangerateapi.exception.handler.AuthExceptionHandler;
 import com.miguelbf.exchangerateapi.exception.handler.GlobalExceptionHandler;
 import com.miguelbf.exchangerateapi.exception.handler.UpstreamExceptionHandler;
+import com.miguelbf.exchangerateapi.exception.handler.ValidationExceptionHandler;
 import com.miguelbf.exchangerateapi.model.dto.*;
 import com.miguelbf.exchangerateapi.service.IAuthService;
 import org.hamcrest.Matcher;
@@ -59,6 +60,7 @@ class AuthControllerMockServiceTest {
         assertDoesNotThrow(() -> context.getBean(GlobalExceptionHandler.class));
         assertDoesNotThrow(() -> context.getBean(UpstreamExceptionHandler.class));
         assertDoesNotThrow(() -> context.getBean(AuthExceptionHandler.class));
+        assertDoesNotThrow(() -> context.getBean(ValidationExceptionHandler.class));
     }
 
     @ParameterizedTest

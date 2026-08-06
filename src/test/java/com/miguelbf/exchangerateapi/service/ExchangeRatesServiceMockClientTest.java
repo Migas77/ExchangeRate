@@ -77,9 +77,10 @@ class ExchangeRatesServiceMockClientTest {
 
         assertEquals(Currency.USD, ex.getSource());
         assertEquals(Currency.EUR, ex.getTarget());
-        assertEquals(spy, ex.getLiveRates());
+        verify(spy, times(2)).getSource();
+        assertEquals(spy.getSource(), ex.getActSource());
+        assertEquals(spy.getQuotes(), ex.getActQuotes());
         verify(exchangeRatesClientService, times(1)).getLiveRates(Currency.USD, Currency.EUR);
-        verify(spy, times(1)).getSource();
     }
 
     @Test
@@ -98,9 +99,10 @@ class ExchangeRatesServiceMockClientTest {
 
         assertEquals(Currency.USD, ex.getSource());
         assertEquals(Currency.EUR, ex.getTarget());
-        assertEquals(spy, ex.getLiveRates());
+        verify(spy, times(2)).getQuotes();
+        assertEquals(spy.getSource(), ex.getActSource());
+        assertEquals(spy.getQuotes(), ex.getActQuotes());
         verify(exchangeRatesClientService, times(1)).getLiveRates(Currency.USD, Currency.EUR);
-        verify(spy, times(1)).getQuotes();
     }
 
     @Test
@@ -116,9 +118,10 @@ class ExchangeRatesServiceMockClientTest {
 
         assertEquals(Currency.USD, ex.getSource());
         assertEquals(Currency.EUR, ex.getTarget());
-        assertEquals(spy, ex.getLiveRates());
+        verify(spy, times(2)).getQuotes();
+        assertEquals(spy.getSource(), ex.getActSource());
+        assertEquals(spy.getQuotes(), ex.getActQuotes());
         verify(exchangeRatesClientService, times(1)).getLiveRates(Currency.USD, Currency.EUR);
-        verify(spy, times(1)).getQuotes();
     }
 
     @Test
@@ -138,9 +141,10 @@ class ExchangeRatesServiceMockClientTest {
 
         assertEquals(Currency.USD, ex.getSource());
         assertNull(ex.getTarget());
-        assertEquals(spy, ex.getLiveRates());
+        verify(spy, times(2)).getQuotes();
+        assertEquals(spy.getSource(), ex.getActSource());
+        assertEquals(spy.getQuotes(), ex.getActQuotes());
         verify(exchangeRatesClientService, times(1)).getLiveRates(Currency.USD, null);
-        verify(spy, times(1)).getQuotes();
     }
 
 }

@@ -7,9 +7,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.Map;
 
-public record RatesResponse(
+public record ConversionResponse(
+
     @Schema(description = "Unix timestamp of when rates were fetched", example = "1786031345")
     @JsonProperty(required = true) long timestamp,
+
+    @Schema(description = "The numerical amount that is converted, expressed in the `source` currency.", example = "120")
+    @JsonProperty(required = true) BigDecimal amount,
 
     @Schema(description = "Base currency the rates are relative to", example = "AED")
     @JsonProperty(required = true) Currency source,
@@ -23,6 +27,17 @@ public record RatesResponse(
             }
             """
     )
-    @JsonProperty(required = true) Map<Currency, BigDecimal> rates
+    @JsonProperty(required = true) Map<Currency, BigDecimal> rates,
+
+    @Schema(
+        description = "Map of currency code to converted value based on rate specified in `rates`",
+        example = """
+            {
+              "EUR": 28.35396,
+              "USD": 32.67528
+            }
+            """
+    )
+    @JsonProperty(required = true) Map<Currency, BigDecimal> convertedValues
 ) {
 }

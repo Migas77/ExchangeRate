@@ -22,12 +22,14 @@ import io.swagger.v3.oas.models.servers.Server;
 import lombok.AllArgsConstructor;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.customizers.OperationCustomizer;
+import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.method.HandlerMethod;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,12 @@ public class OpenAPIConfig {
     private static final String GATEWAY_BASE_URL = "http://localhost:8080/gw";
 
     ApplicationProperties applicationProperties;
+
+    static {
+        SpringDocUtils.getConfig().replaceWithSchema(
+            BigDecimal.class,
+            new Schema<BigDecimal>().type("number").format("decimal"));
+    }
 
     @Bean
     public OpenAPI exchangeRatesAPI() {

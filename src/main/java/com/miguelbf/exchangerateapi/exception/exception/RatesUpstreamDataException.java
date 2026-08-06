@@ -3,9 +3,11 @@ package com.miguelbf.exchangerateapi.exception.exception;
 import com.miguelbf.exchangerateapi.config.logging.CustomLogStructureFields;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.LiveRates;
+import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,13 +17,23 @@ public abstract sealed class RatesUpstreamDataException extends RuntimeException
 
     private final Currency source;
     private final @Nullable Currency target;
-    private final LiveRates liveRates;
+    private final Currency actSource;
+    private final Map<Currency, BigDecimal> actQuotes;
 
     protected RatesUpstreamDataException(String message, Currency source, @Nullable Currency target, LiveRates liveRates) {
         super(message);
         this.source = source;
         this.target = target;
-        this.liveRates = liveRates;
+        this.actSource = liveRates.getSource();
+        this.actQuotes = liveRates.getQuotes();
+    }
+
+    protected RatesUpstreamDataException(String message, Currency source, @Nullable Currency target, RatesResponse ratesResponse) {
+        super(message);
+        this.source = source;
+        this.target = target;
+        this.actSource = ratesResponse.source();
+        this.actQuotes = ratesResponse.rates();
     }
 
     @Override
@@ -29,8 +41,8 @@ public abstract sealed class RatesUpstreamDataException extends RuntimeException
         Map<String, @Nullable Object> fields = new HashMap<>();
         fields.put("req_source", this.source);
         fields.put("req_target", this.target);
-        fields.put("act_source", liveRates.getSource());
-        fields.put("act_quotes", liveRates.getQuotes());
+        fields.put("act_source", this.actSource);
+        fields.put("act_quotes", this.actQuotes);
         return Collections.unmodifiableMap(fields);
     }
 
@@ -52,6 +64,13 @@ public abstract sealed class RatesUpstreamDataException extends RuntimeException
         // upstream API returned unexpected quote count according to the request
         public UnexpectedQuoteCount(String message, Currency from, @Nullable Currency target, LiveRates liveRates) {
             super(message, from, target, liveRates);
+        }
+    }
+
+    public static final class MissingTarget extends RatesUpstreamDataException {
+        // upstream API returned a quotes batch that did not include one of the expected target currencies
+        public MissingTarget(String message, Currency from, @Nullable Currency target, RatesResponse ratesResponse) {
+            super(message, from, target, ratesResponse);
         }
     }
 

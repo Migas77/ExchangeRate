@@ -10,6 +10,7 @@ import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamDataExcepti
 import com.miguelbf.exchangerateapi.exception.handler.UpstreamExceptionHandler;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.LiveRates;
+import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
 import com.miguelbf.exchangerateapi.utilities.LoggingEvents;
 import com.miguelbf.exchangerateapi.utilities.stubs.StubController;
 import com.miguelbf.exchangerateapi.utilities.stubs.StubService;
@@ -220,11 +221,11 @@ class UpstreamExceptionHandlerMockExceptionsTest {
             LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "req_target")
         );
         assertEquals(
-            objectMapper.writeValueAsString(exception.getLiveRates().getSource()),
+            objectMapper.writeValueAsString(exception.getActSource()),
             LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "act_source")
         );
         assertEquals(
-            objectMapper.writeValueAsString(exception.getLiveRates().getQuotes()),
+            objectMapper.writeValueAsString(exception.getActQuotes()),
             LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "act_quotes")
         );
         assertInstanceOf(exception.getClass(), throwable);
@@ -286,6 +287,12 @@ class UpstreamExceptionHandlerMockExceptionsTest {
                         "EURUSD", new BigDecimal("1.14")
                     ))
                 ), "Upstream returned unexpected quote count"
+            ),
+            Arguments.of(
+                new RatesUpstreamDataException.MissingTarget(
+                    "Missing target", Currency.EUR, Currency.GBP,
+                    new RatesResponse(4L, Currency.EUR, Map.of(Currency.USD, new BigDecimal("1.14")))
+                ), "Upstream response missing target currency"
             )
         );
     }
