@@ -5,7 +5,6 @@ import com.miguelbf.exchangerateapi.config.properties.ExchangeRatesClientPropert
 import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamAPIException;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.*;
 import com.miguelbf.exchangerateapi.utilities.models.TestLiveRates;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -94,7 +93,7 @@ class ExchangeRatesClientMockUpstreamAPITest {
                 HttpStatus.SERVICE_UNAVAILABLE,
                 1503,
                 "Service unavailable.",
-                null
+                ""
             )
         );
     }
@@ -112,7 +111,7 @@ class ExchangeRatesClientMockUpstreamAPITest {
                 HttpStatus.UNPROCESSABLE_CONTENT,
                 1422,
                 "Unexpected unprocessable content.",
-                null
+                ""
             )
         );
     }
@@ -177,7 +176,7 @@ class ExchangeRatesClientMockUpstreamAPITest {
     @ParameterizedTest
     @MethodSource("documentedErrorScenarios")
     void whenDocumentedUnsuccessfulRequest_thenThrowsRatesUpstreamAPIDocumentedHttpErrorException(
-        HttpStatus status, int code, String info, @Nullable String type
+        HttpStatus status, int code, String info, String type
     ) {
         Currency sourceCurr = Currency.USD;
         Currency targetCurr = Currency.EUR;
@@ -208,7 +207,7 @@ class ExchangeRatesClientMockUpstreamAPITest {
     @ParameterizedTest
     @MethodSource("undocumentedErrorScenarios")
     void whenUndocumentedUnsuccessfulRequest_thenThrowsRatesUpstreamAPIUnexpectedHttpErrorException(
-        HttpStatus status, int code, String info, @Nullable String type
+        HttpStatus status, int code, String info, String type
     ) {
         Currency sourceCurr = Currency.USD;
         Currency targetCurr = Currency.EUR;

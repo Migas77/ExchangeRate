@@ -30,12 +30,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -155,10 +159,33 @@ class UpstreamExceptionHandlerMockExceptionsTest {
         verify(stubService, times(1)).call();
     }
 
+    @Test
+    void whenRestClientException_thenBadGateway() throws Exception {
+        RestClientException exception = new RestClientException("no suitable HttpMessageConverter found");
+        String detailMessage = "The upstream service returned an invalid response. Please try again later.";
+        doThrow(exception).when(stubService).call();
+
+        mockMvc
+            .perform(get("/stub"))
+            .andExpect(status().isBadGateway())
+            .andExpect(jsonPath("$.instance", is("/stub")))
+            .andExpect(jsonPath("$.title", is("Bad Gateway")))
+            .andExpect(jsonPath("$.status", is(HttpStatus.BAD_GATEWAY.value())))
+            .andExpect(jsonPath("$.detail", is(detailMessage)));
+
+        ILoggingEvent event = logAppender.list.getFirst();
+        Throwable throwable = LoggingEvents.getThrowable(event);
+        assertEquals(1, logAppender.list.size(), "Expected exactly one log event");
+        assertEquals(Level.ERROR, event.getLevel());
+        assertEquals("Base RestClientException", event.getMessage());
+        assertInstanceOf(exception.getClass(), throwable);
+        verify(stubService, times(1)).call();
+    }
+
     @ParameterizedTest
     @MethodSource("ratesUpstreamAPIExceptionsAndMessages")
     void whenRatesUpstreamApiException_thenBadGateway(
-        RatesUpstreamAPIException exception, String message
+        RatesUpstreamAPIException exception, String message, Map<String, Object> expectedUpstreamFields
     ) throws Exception {
         String detailMessage = "The upstream service returned an invalid response. Please try again later.";
         doThrow(exception).when(stubService).call();
@@ -184,6 +211,16 @@ class UpstreamExceptionHandlerMockExceptionsTest {
             objectMapper.writeValueAsString(exception.getMethod().toString()),
             LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, "method")
         );
+        List<String> upstreamLogKeys = List.of(
+            "upstream_error_code", "upstream_error_info", "upstream_error_type", "upstream_error_raw_body"
+        );
+        for (String key : upstreamLogKeys) {
+            Object expectedValue = expectedUpstreamFields.get(key);
+            assertEquals(
+                expectedValue == null ? null : objectMapper.writeValueAsString(expectedValue),
+                LoggingEvents.getKeyLogAsString(this.logOutput, objectMapper, key)
+            );
+        }
         assertInstanceOf(exception.getClass(), throwable);
         assertNotNull(exception.getCause());
         assertInstanceOf(exception.getCause().getClass(), throwable.getCause());
@@ -242,24 +279,49 @@ class UpstreamExceptionHandlerMockExceptionsTest {
     }
 
     private static Stream<Arguments> ratesUpstreamAPIExceptionsAndMessages() throws URISyntaxException {
+        String documentedBody = """
+            {"success":false,"error":{"code":101,"info":"Invalid access key.","type":"invalid_access_key"}}""";
+        String undocumentedBody = """
+            {"success":false,"error":{"code":1422,"info":"Unexpected unprocessable content."}}""";
+        String htmlBody = "<html><body>upstream is down</body></html>";
+
         return Stream.of(
             Arguments.of(
                 new RatesUpstreamAPIException.DocumentedHttpError(
-                    "Documented error", new RuntimeException("cause 1"),
+                    "Documented error", buildUpstreamError(HttpStatus.UNAUTHORIZED, documentedBody),
                     new URI("https://placeholder.com"), HttpMethod.GET
-                ), "Upstream returned documented http error"
+                ), "Upstream returned documented http error",
+                Map.of(
+                    "upstream_error_code", 101,
+                    "upstream_error_info", "Invalid access key.",
+                    "upstream_error_type", "invalid_access_key"
+                )
             ),
             Arguments.of(
                 new RatesUpstreamAPIException.UnexpectedHttpError(
-                    "Unexpected error", new RuntimeException("cause 2"),
+                    "Unexpected error", buildUpstreamError(HttpStatus.UNPROCESSABLE_CONTENT, undocumentedBody),
                     new URI("https://placeholder.com"), HttpMethod.POST
-                ), "Upstream returned unexpected http error"
+                ), "Upstream returned unexpected http error",
+                Map.of(
+                    "upstream_error_code", 1422,
+                    "upstream_error_info", "Unexpected unprocessable content.",
+                    "upstream_error_type", ""
+                )
+            ),
+            Arguments.of(
+                // body does not map to ExchangeRateApiError, so it is logged as is
+                new RatesUpstreamAPIException.UnexpectedHttpError(
+                    "Unexpected error with unparseable body", buildUpstreamError(HttpStatus.BAD_GATEWAY, htmlBody),
+                    new URI("https://placeholder.com"), HttpMethod.POST
+                ), "Upstream returned unexpected http error",
+                Map.of("upstream_error_raw_body", htmlBody)
             ),
             Arguments.of(
                 new RatesUpstreamAPIException.UnexpectedEmptyResponse(
-                    "Unexpected empty response", new RuntimeException("cause 3"),
+                    "Unexpected empty response", new RuntimeException("cause 4"),
                     new URI("https://placeholder.com"), HttpMethod.PUT
-                ), "Upstream returned unexpected empty response body"
+                ), "Upstream returned unexpected empty response body",
+                Map.of()
             )
         );
     }
@@ -295,6 +357,17 @@ class UpstreamExceptionHandlerMockExceptionsTest {
                 ), "Upstream response missing target currency"
             )
         );
+    }
+
+    private static RestClientResponseException buildUpstreamError(HttpStatus status, String body) {
+        ObjectMapper mapper = new ObjectMapper();
+        RestClientResponseException exception = new RestClientResponseException(
+            status.toString(), status, status.getReasonPhrase(), null,
+            body.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8
+        );
+        exception.setBodyConvertFunction(targetType ->
+            mapper.readValue(body, mapper.constructType(targetType.getType())));
+        return exception;
     }
 
 }
