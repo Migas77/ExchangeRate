@@ -1,6 +1,6 @@
 package com.miguelbf.exchangerateapi.exception.handler;
 
-import com.miguelbf.exchangerateapi.exception.ProblemDetails;
+import com.miguelbf.exchangerateapi.exception.ProblemDetailsFactory;
 import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamAPIException;
 import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamDataException;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.ErrorStatus;
@@ -133,7 +133,7 @@ public class UpstreamExceptionHandler {
             detail = "An unexpected error occurred. Please try again later.";
             log.atError().setMessage("Unexpected ResourceAccessException").setCause(ex).log();
         }
-        return ProblemDetails.of(httpStatus, detail, request);
+        return ProblemDetailsFactory.of(httpStatus, detail, request);
     }
 
     @ExceptionHandler(RestClientException.class)
@@ -141,7 +141,7 @@ public class UpstreamExceptionHandler {
         HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
         String detail = "The upstream service returned an invalid response. Please try again later.";
         log.atError().setMessage("Base RestClientException").setCause(ex).log();
-        return ProblemDetails.of(httpStatus, detail, request);
+        return ProblemDetailsFactory.of(httpStatus, detail, request);
     }
 
     @ExceptionHandler(RatesUpstreamAPIException.class)
@@ -166,7 +166,7 @@ public class UpstreamExceptionHandler {
             }
         }
         logBuilder.setMessage(message).setCause(ex).log();
-        return ProblemDetails.of(httpStatus, detail, request);
+        return ProblemDetailsFactory.of(httpStatus, detail, request);
     }
 
     @SuppressWarnings("CheckReturnValue")
@@ -205,7 +205,7 @@ public class UpstreamExceptionHandler {
             case RatesUpstreamDataException.MissingTarget missingTarget -> "Upstream response missing target currency";
         };
         log.atError().setMessage(message).setCause(ex).log();
-        return ProblemDetails.of(httpStatus, detail, request);
+        return ProblemDetailsFactory.of(httpStatus, detail, request);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.miguelbf.exchangerateapi.exception.handler;
 
 import com.miguelbf.exchangerateapi.controller.AuthController;
-import com.miguelbf.exchangerateapi.exception.ProblemDetails;
+import com.miguelbf.exchangerateapi.exception.ProblemDetailsFactory;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +32,7 @@ public class AuthExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     protected ProblemDetail handledBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
         log.atWarn().setMessage("Bad Credentials").setCause(ex).log();
-        return ProblemDetails.of(HttpStatus.UNAUTHORIZED, "Invalid email or password.", request);
+        return ProblemDetailsFactory.of(HttpStatus.UNAUTHORIZED, "Invalid email or password.", request);
     }
 
     @ExceptionHandler({InvalidBearerTokenException.class, AuthenticationServiceException.class})

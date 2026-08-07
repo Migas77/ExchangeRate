@@ -1,7 +1,7 @@
 package com.miguelbf.exchangerateapi.exception.handler;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.miguelbf.exchangerateapi.exception.ProblemDetails;
+import com.miguelbf.exchangerateapi.exception.ProblemDetailsFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -45,7 +45,7 @@ public class ValidationExceptionHandler {
             case JsonMappingException jsonMappingException -> "Request could not be mapped to the expected structure.";
             default -> "Failed to read request.";
         };
-        return ProblemDetails.of(HttpStatus.BAD_REQUEST, message, request);
+        return ProblemDetailsFactory.of(HttpStatus.BAD_REQUEST, message, request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -56,7 +56,7 @@ public class ValidationExceptionHandler {
         if (message.isBlank()) {
             message = "Invalid request content.";
         }
-        return ProblemDetails.of(HttpStatus.BAD_REQUEST, message, request);
+        return ProblemDetailsFactory.of(HttpStatus.BAD_REQUEST, message, request);
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
@@ -69,7 +69,7 @@ public class ValidationExceptionHandler {
             message = "Validation Failure. Invalid request parameters.";
         }
 
-        return ProblemDetails.of(HttpStatus.BAD_REQUEST, message, request);
+        return ProblemDetailsFactory.of(HttpStatus.BAD_REQUEST, message, request);
     }
 
 }
