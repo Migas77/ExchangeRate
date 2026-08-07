@@ -24,7 +24,7 @@ public class ExchangeRatesService implements IExchangeRatesService {
     }
 
     @Override
-    @Cacheable(value = "liveRates", key = "#source.name() + (#target != null ? ':' + #target.name() : '')")
+    @Cacheable(value = "liveRates", key = "#source.name() + (#target != null ? ':' + #target.name() : '')", sync = true)
     public RatesResponse getRates(Currency source, @Nullable Currency target) {
         LiveRates liveRates = this.exchangeRatesClientService.getLiveRates(source, target);
         Currency liveRatesSource = liveRates.getSource();
