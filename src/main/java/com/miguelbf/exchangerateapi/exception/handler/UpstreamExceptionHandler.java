@@ -161,9 +161,8 @@ public class UpstreamExceptionHandler {
                 message = "Upstream returned unexpected http error";
                 logUpstreamBody(logBuilder, ex.getCause());
             }
-            case RatesUpstreamAPIException.UnexpectedEmptyResponse unexpectedEmptyResponse -> {
+            case RatesUpstreamAPIException.UnexpectedEmptyResponse unexpectedEmptyResponse ->
                 message = "Upstream returned unexpected empty response body";
-            }
         }
         logBuilder.setMessage(message).setCause(ex).log();
         return ProblemDetailsFactory.of(httpStatus, detail, request);
