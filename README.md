@@ -80,7 +80,7 @@ In this implementation, the gateway runs inside the same Spring application, wit
 
 ### Rate Limiting
 
-**Rate limiting** is enforced on the `/gw/**` route using Spring Cloud Gateway's support for [**Bucket4j**](https://www.baeldung.com/spring-bucket4j), following the **Token Bucket Algorithm** and using a **Redis Cache**. By default, each bucket has a capacity of 10 requests, refilled over a 1-minute window. Rate-limiting is applied based on the bucket key determined by the request’s authentication status. Authenticated requests are rate-limited per user using the JWT subject as the key (`b4j::user:<sub>`), while unauthenticated requests are rate-limited per IP address using the caller’s IP as the key (`b4j::ip:<address>`).
+**Rate limiting** is enforced on the `/gw/**` route using Spring Cloud Gateway's support for [**Bucket4j**](https://github.com/bucket4j/bucket4j), following the **Token Bucket Algorithm** and using a **Redis Cache**. By default, each bucket has a capacity of 10 requests, refilled over a 1-minute window. Rate-limiting is applied based on the bucket key determined by the request’s authentication status. Authenticated requests are rate-limited per user using the JWT subject as the key (`b4j::user:<sub>`), while unauthenticated requests are rate-limited per IP address using the caller’s IP as the key (`b4j::ip:<address>`).
 
 Every response carries an `X-RateLimit-Remaining` header with the number of requests left in the current window, and once the bucket is empty the gateway answers `429 Too Many Requests` (with `X-RateLimit-Remaining: 0`), without it being forwarded to the controller. The buckets are stored in Redis, so the limit is shared across all backend instances (if there were multiple) and survives restarts.
 
