@@ -169,6 +169,25 @@ public class UpstreamExceptionHandler {
         return ProblemDetailsFactory.of(httpStatus, detail, request);
     }
 
+    @ExceptionHandler(RatesUpstreamDataException.class)
+    public ProblemDetail handleRatesUpstreamDataException(
+        RatesUpstreamDataException ex, HttpServletRequest request
+    ) {
+        HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
+        String detail = "The upstream service returned incoherent domain data. Please try again later.";
+        String message = switch (ex) {
+            case RatesUpstreamDataException.UnexpectedSource unexpectedSource ->
+                "Upstream returned unexpected source currency";
+            case RatesUpstreamDataException.UnexpectedTarget unexpectedTarget ->
+                "Upstream returned unexpected target currency";
+            case RatesUpstreamDataException.UnexpectedQuoteCount unexpectedQuoteCount ->
+                "Upstream returned unexpected quote count";
+            case RatesUpstreamDataException.MissingTarget missingTarget -> "Upstream response missing target currency";
+        };
+        log.atError().setMessage(message).setCause(ex).log();
+        return ProblemDetailsFactory.of(httpStatus, detail, request);
+    }
+
     @SuppressWarnings("CheckReturnValue")
     private void logUpstreamBody(LoggingEventBuilder logBuilder, @Nullable Throwable cause) {
         if (!(cause instanceof RestClientResponseException restClientResponseException)) {
@@ -187,25 +206,6 @@ public class UpstreamExceptionHandler {
             String rawBody = restClientResponseException.getResponseBodyAsString();
             logBuilder.addKeyValue("upstream_error_raw_body", rawBody);
         }
-    }
-
-    @ExceptionHandler(RatesUpstreamDataException.class)
-    public ProblemDetail handleRatesUpstreamDataException(
-        RatesUpstreamDataException ex, HttpServletRequest request
-    ) {
-        HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
-        String detail = "The upstream service returned incoherent domain data. Please try again later.";
-        String message = switch (ex) {
-            case RatesUpstreamDataException.UnexpectedSource unexpectedSource ->
-                "Upstream returned unexpected source currency";
-            case RatesUpstreamDataException.UnexpectedTarget unexpectedTarget ->
-                "Upstream returned unexpected target currency";
-            case RatesUpstreamDataException.UnexpectedQuoteCount unexpectedQuoteCount ->
-                "Upstream returned unexpected quote count";
-            case RatesUpstreamDataException.MissingTarget missingTarget -> "Upstream response missing target currency";
-        };
-        log.atError().setMessage(message).setCause(ex).log();
-        return ProblemDetailsFactory.of(httpStatus, detail, request);
     }
 
 }

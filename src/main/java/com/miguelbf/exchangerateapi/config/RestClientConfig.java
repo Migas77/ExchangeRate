@@ -25,20 +25,6 @@ public class RestClientConfig {
         this.exchangeRatesClientProperties = exchangeRatesClientProperties;
     }
 
-    private static DefaultUriBuilderFactory createAccessKeyUriBuilderFactory(String baseUrl, String accessKey) {
-        return new DefaultUriBuilderFactory(baseUrl) {
-            @Override
-            public @NonNull UriBuilder uriString(@NonNull String uriTemplate) {
-                return super.uriString(uriTemplate).queryParam("access_key", accessKey);
-            }
-
-            @Override
-            public @NonNull UriBuilder builder() {
-                return super.builder().queryParam("access_key", accessKey);
-            }
-        };
-    }
-
     @Bean
     public RestClient getExchangeRatesRestClient(ObjectProvider<RestClientCustomizer> customizers) {
         HttpClientSettings settings = HttpClientSettings.defaults()
@@ -56,6 +42,20 @@ public class RestClientConfig {
             .uriBuilderFactory(createAccessKeyUriBuilderFactory(baseUrl, accessKey))
             .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
             .build();
+    }
+
+    private static DefaultUriBuilderFactory createAccessKeyUriBuilderFactory(String baseUrl, String accessKey) {
+        return new DefaultUriBuilderFactory(baseUrl) {
+            @Override
+            public @NonNull UriBuilder uriString(@NonNull String uriTemplate) {
+                return super.uriString(uriTemplate).queryParam("access_key", accessKey);
+            }
+
+            @Override
+            public @NonNull UriBuilder builder() {
+                return super.builder().queryParam("access_key", accessKey);
+            }
+        };
     }
 
 }
