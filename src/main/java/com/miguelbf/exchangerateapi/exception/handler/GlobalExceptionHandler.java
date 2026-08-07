@@ -1,6 +1,6 @@
 package com.miguelbf.exchangerateapi.exception.handler;
 
-import com.miguelbf.exchangerateapi.exception.ProblemDetails;
+import com.miguelbf.exchangerateapi.exception.ProblemDetailsFactory;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -56,7 +56,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.atError().setMessage("Unhandled exception").setCause(ex).log();
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         String detail = "An unexpected error occurred. Please try again later.";
-        return ProblemDetails.of(httpStatus, detail, request);
+        return ProblemDetailsFactory.of(httpStatus, detail, request);
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)

@@ -27,17 +27,6 @@ public class JwtService implements IJwtService {
         this.jwtProperties = jwtProperties;
     }
 
-    private String extractRole(UserDetails user) {
-        String role = user.getAuthorities().stream()
-            .findFirst()
-            .map(GrantedAuthority::getAuthority)
-            .orElse(null);
-        if (role == null) {
-            throw new IllegalStateException("User has no authorities");
-        }
-        return role;
-    }
-
     @Override
     public Instant extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration).toInstant();
@@ -57,6 +46,17 @@ public class JwtService implements IJwtService {
                 "type", "refresh",
                 "role", this.extractRole(user)
             ), user, this.jwtProperties.getRefreshExpTime());
+    }
+
+    private String extractRole(UserDetails user) {
+        String role = user.getAuthorities().stream()
+            .findFirst()
+            .map(GrantedAuthority::getAuthority)
+            .orElse(null);
+        if (role == null) {
+            throw new IllegalStateException("User has no authorities");
+        }
+        return role;
     }
 
     private String generateJwtToken(Map<String, Object> extraClaims, UserDetails user, Duration expirationTime) {

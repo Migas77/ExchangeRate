@@ -1,8 +1,10 @@
 package com.miguelbf.exchangerateapi.exception.handler;
 
-import com.miguelbf.exchangerateapi.exception.ProblemDetails;
+import com.miguelbf.exchangerateapi.exception.ProblemDetailsFactory;
 import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamAPIException;
 import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamDataException;
+import com.miguelbf.exchangerateapi.model.clients.exchangerates.ErrorStatus;
+import com.miguelbf.exchangerateapi.model.clients.exchangerates.ExchangeRateApiError;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,6 +12,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
+import org.slf4j.spi.LoggingEventBuilder;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -17,6 +21,8 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.net.ConnectException;
 import java.net.NoRouteToHostException;
@@ -100,7 +106,6 @@ import java.net.UnknownHostException;
 })
 public class UpstreamExceptionHandler {
 
-
     @ExceptionHandler(ResourceAccessException.class)
     public ProblemDetail handleResourceAccessException(
         ResourceAccessException ex, HttpServletRequest request
@@ -128,7 +133,15 @@ public class UpstreamExceptionHandler {
             detail = "An unexpected error occurred. Please try again later.";
             log.atError().setMessage("Unexpected ResourceAccessException").setCause(ex).log();
         }
-        return ProblemDetails.of(httpStatus, detail, request);
+        return ProblemDetailsFactory.of(httpStatus, detail, request);
+    }
+
+    @ExceptionHandler(RestClientException.class)
+    public ProblemDetail handleRestClientException(RestClientException ex, HttpServletRequest request) {
+        HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
+        String detail = "The upstream service returned an invalid response. Please try again later.";
+        log.atError().setMessage("Base RestClientException").setCause(ex).log();
+        return ProblemDetailsFactory.of(httpStatus, detail, request);
     }
 
     @ExceptionHandler(RatesUpstreamAPIException.class)
@@ -137,16 +150,22 @@ public class UpstreamExceptionHandler {
     ) {
         HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
         String detail = "The upstream service returned an invalid response. Please try again later.";
-        String message = switch (ex) {
-            case RatesUpstreamAPIException.DocumentedHttpError documentedHttpError ->
-                "Upstream returned documented http error";
-            case RatesUpstreamAPIException.UnexpectedHttpError unexpectedHttpError ->
-                "Upstream returned unexpected http error";
+        LoggingEventBuilder logBuilder = log.atError();
+        String message;
+        switch (ex) {
+            case RatesUpstreamAPIException.DocumentedHttpError documentedHttpError -> {
+                message = "Upstream returned documented http error";
+                logUpstreamBody(logBuilder, ex.getCause());
+            }
+            case RatesUpstreamAPIException.UnexpectedHttpError unexpectedHttpError -> {
+                message = "Upstream returned unexpected http error";
+                logUpstreamBody(logBuilder, ex.getCause());
+            }
             case RatesUpstreamAPIException.UnexpectedEmptyResponse unexpectedEmptyResponse ->
-                "Upstream returned unexpected empty response body";
-        };
-        log.atError().setMessage(message).setCause(ex).log();
-        return ProblemDetails.of(httpStatus, detail, request);
+                message = "Upstream returned unexpected empty response body";
+        }
+        logBuilder.setMessage(message).setCause(ex).log();
+        return ProblemDetailsFactory.of(httpStatus, detail, request);
     }
 
     @ExceptionHandler(RatesUpstreamDataException.class)
@@ -165,7 +184,27 @@ public class UpstreamExceptionHandler {
             case RatesUpstreamDataException.MissingTarget missingTarget -> "Upstream response missing target currency";
         };
         log.atError().setMessage(message).setCause(ex).log();
-        return ProblemDetails.of(httpStatus, detail, request);
+        return ProblemDetailsFactory.of(httpStatus, detail, request);
+    }
+
+    @SuppressWarnings("CheckReturnValue")
+    private void logUpstreamBody(LoggingEventBuilder logBuilder, @Nullable Throwable cause) {
+        if (!(cause instanceof RestClientResponseException restClientResponseException)) {
+            return;
+        }
+        try {
+            ExchangeRateApiError upstreamError = restClientResponseException.getResponseBodyAs(ExchangeRateApiError.class);
+            if (upstreamError != null) {
+                ErrorStatus errorStatus = upstreamError.error();
+                logBuilder
+                    .addKeyValue("upstream_error_code", errorStatus.code())
+                    .addKeyValue("upstream_error_info", errorStatus.info())
+                    .addKeyValue("upstream_error_type", errorStatus.type());
+            }
+        } catch (RuntimeException e) {
+            String rawBody = restClientResponseException.getResponseBodyAsString();
+            logBuilder.addKeyValue("upstream_error_raw_body", rawBody);
+        }
     }
 
 }

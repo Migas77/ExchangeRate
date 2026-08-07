@@ -1,7 +1,7 @@
 package com.miguelbf.exchangerateapi.controller;
 
 
-import com.miguelbf.exchangerateapi.exception.ProblemDetails;
+import com.miguelbf.exchangerateapi.exception.ProblemDetailsFactory;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.Currency;
 import com.miguelbf.exchangerateapi.model.dto.ConversionResponse;
 import com.miguelbf.exchangerateapi.model.dto.RatesResponse;
@@ -108,7 +108,7 @@ public class ExchangeRatesController {
         HttpServletRequest request
     ) {
         if (source.equals(target)) {
-            throw new ErrorResponseException(HttpStatus.BAD_REQUEST, ProblemDetails.of(HttpStatus.BAD_REQUEST,
+            throw new ErrorResponseException(HttpStatus.BAD_REQUEST, ProblemDetailsFactory.of(HttpStatus.BAD_REQUEST,
                 "Source and target currency must not match: %s".formatted(source), request), null);
         }
 
@@ -204,7 +204,7 @@ public class ExchangeRatesController {
         if (targets == null) {
             targets = Set.of();
         } else if (targets.contains(source)) {
-            throw new ErrorResponseException(HttpStatus.BAD_REQUEST, ProblemDetails.of(HttpStatus.BAD_REQUEST,
+            throw new ErrorResponseException(HttpStatus.BAD_REQUEST, ProblemDetailsFactory.of(HttpStatus.BAD_REQUEST,
                 "Source and target currencies must not match: %s".formatted(source), request), null);
         }
         return this.conversionService.convertValue(amount, source, targets);

@@ -188,24 +188,6 @@ public class OpenAPIConfig {
         };
     }
 
-    private boolean hasEndpointPrefix(HandlerMethod handlerMethod, String pathPrefix) {
-        RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(
-            handlerMethod.getBeanType(), RequestMapping.class);
-        if (requestMapping == null) {
-            return false;
-        }
-        return Stream.concat(Arrays.stream(requestMapping.value()), Arrays.stream(requestMapping.path()))
-            .anyMatch(path -> path.startsWith(pathPrefix));
-    }
-
-    private Header bearerChallengeHeader(String example) {
-        return new Header()
-            .description("""
-                Bearer challenge as defined by [RFC 6750 Sec. 3]\
-                (https://datatracker.ietf.org/doc/html/rfc6750#section-3)""")
-            .schema(new StringSchema().example(example));
-    }
-
     @Bean
     public OpenApiCustomizer problemDetailSchemaCustomizer() {
         return openApi -> {
@@ -225,6 +207,24 @@ public class OpenAPIConfig {
                 }
             }
         };
+    }
+
+    private boolean hasEndpointPrefix(HandlerMethod handlerMethod, String pathPrefix) {
+        RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(
+            handlerMethod.getBeanType(), RequestMapping.class);
+        if (requestMapping == null) {
+            return false;
+        }
+        return Stream.concat(Arrays.stream(requestMapping.value()), Arrays.stream(requestMapping.path()))
+            .anyMatch(path -> path.startsWith(pathPrefix));
+    }
+
+    private Header bearerChallengeHeader(String example) {
+        return new Header()
+            .description("""
+                Bearer challenge as defined by [RFC 6750 Sec. 3]\
+                (https://datatracker.ietf.org/doc/html/rfc6750#section-3)""")
+            .schema(new StringSchema().example(example));
     }
 
     private void setExample(Map<String, Schema> props, String field, Object example) {

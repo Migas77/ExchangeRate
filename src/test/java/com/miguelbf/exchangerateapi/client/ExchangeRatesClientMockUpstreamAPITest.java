@@ -5,7 +5,6 @@ import com.miguelbf.exchangerateapi.config.properties.ExchangeRatesClientPropert
 import com.miguelbf.exchangerateapi.exception.exception.RatesUpstreamAPIException;
 import com.miguelbf.exchangerateapi.model.clients.exchangerates.*;
 import com.miguelbf.exchangerateapi.utilities.models.TestLiveRates;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -60,62 +59,6 @@ class ExchangeRatesClientMockUpstreamAPITest {
 
     @Autowired
     private ExchangeRatesClientProperties exchangeRatesClientProperties;
-
-    private static Stream<Arguments> documentedErrorScenarios() {
-        return Stream.of(
-            // Documented 400, 401, 429
-            Arguments.of(
-                HttpStatus.BAD_REQUEST,
-                301,
-                "User did not specify a date. [historical]",
-                "invalid_source_currency"
-            ),
-            Arguments.of(
-                HttpStatus.UNAUTHORIZED,
-                101,
-                "User did not supply an access key or supplied an invalid access key.",
-                "missing_access_key"
-            ),
-            Arguments.of(
-                HttpStatus.TOO_MANY_REQUESTS,
-                104,
-                "Your monthly usage limit has been reached. Please upgrade your subscription plan.",
-                "too_many_requests_type"
-            ),
-
-            // Documented 5XX
-            Arguments.of(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                500,
-                "Internal server error.",
-                "internal_server_error_type"
-            ),
-            Arguments.of(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                1503,
-                "Service unavailable.",
-                null
-            )
-        );
-    }
-
-    private static Stream<Arguments> undocumentedErrorScenarios() {
-        return Stream.of(
-            // Not 200 or documented Error Scenario
-            Arguments.of(
-                HttpStatus.SEE_OTHER,
-                1303,
-                "Unexpected see other.",
-                "see_other_type"
-            ),
-            Arguments.of(
-                HttpStatus.UNPROCESSABLE_CONTENT,
-                1422,
-                "Unexpected unprocessable content.",
-                null
-            )
-        );
-    }
 
     @Test
     void givenNoTarget_whenGetLiveRates_thenCurrenciesParamIsAbsentAndSuccess() throws URISyntaxException {
@@ -177,7 +120,7 @@ class ExchangeRatesClientMockUpstreamAPITest {
     @ParameterizedTest
     @MethodSource("documentedErrorScenarios")
     void whenDocumentedUnsuccessfulRequest_thenThrowsRatesUpstreamAPIDocumentedHttpErrorException(
-        HttpStatus status, int code, String info, @Nullable String type
+        HttpStatus status, int code, String info, String type
     ) {
         Currency sourceCurr = Currency.USD;
         Currency targetCurr = Currency.EUR;
@@ -208,7 +151,7 @@ class ExchangeRatesClientMockUpstreamAPITest {
     @ParameterizedTest
     @MethodSource("undocumentedErrorScenarios")
     void whenUndocumentedUnsuccessfulRequest_thenThrowsRatesUpstreamAPIUnexpectedHttpErrorException(
-        HttpStatus status, int code, String info, @Nullable String type
+        HttpStatus status, int code, String info, String type
     ) {
         Currency sourceCurr = Currency.USD;
         Currency targetCurr = Currency.EUR;
@@ -316,6 +259,62 @@ class ExchangeRatesClientMockUpstreamAPITest {
         );
         assertInstanceOf(HttpMessageNotReadableException.class, ex.getCause());
         assertInstanceOf(IllegalArgumentException.class, ex.getRootCause());
+    }
+
+    private static Stream<Arguments> documentedErrorScenarios() {
+        return Stream.of(
+            // Documented 400, 401, 429
+            Arguments.of(
+                HttpStatus.BAD_REQUEST,
+                301,
+                "User did not specify a date. [historical]",
+                "invalid_source_currency"
+            ),
+            Arguments.of(
+                HttpStatus.UNAUTHORIZED,
+                101,
+                "User did not supply an access key or supplied an invalid access key.",
+                "missing_access_key"
+            ),
+            Arguments.of(
+                HttpStatus.TOO_MANY_REQUESTS,
+                104,
+                "Your monthly usage limit has been reached. Please upgrade your subscription plan.",
+                "too_many_requests_type"
+            ),
+
+            // Documented 5XX
+            Arguments.of(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                500,
+                "Internal server error.",
+                "internal_server_error_type"
+            ),
+            Arguments.of(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                1503,
+                "Service unavailable.",
+                ""
+            )
+        );
+    }
+
+    private static Stream<Arguments> undocumentedErrorScenarios() {
+        return Stream.of(
+            // Not 200 or documented Error Scenario
+            Arguments.of(
+                HttpStatus.SEE_OTHER,
+                1303,
+                "Unexpected see other.",
+                "see_other_type"
+            ),
+            Arguments.of(
+                HttpStatus.UNPROCESSABLE_CONTENT,
+                1422,
+                "Unexpected unprocessable content.",
+                ""
+            )
+        );
     }
 
 }

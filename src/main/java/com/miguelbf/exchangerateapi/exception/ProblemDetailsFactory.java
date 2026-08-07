@@ -6,9 +6,9 @@ import org.springframework.http.ProblemDetail;
 
 import java.net.URI;
 
-public final class ProblemDetails {
+public final class ProblemDetailsFactory {
 
-    private ProblemDetails() {
+    private ProblemDetailsFactory() {
         // Private constructor to prevent instantiation
     }
 
