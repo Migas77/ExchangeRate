@@ -1,3 +1,28 @@
+## [2.2.0](https://github.com/Migas77/ExchangeRate/compare/v2.1.0...v2.2.0) (2026-08-08)
+
+### Features
+
+* **exceptions:** add broad restClientException handler and log error messages from upstream in structured logging ([2344f10](https://github.com/Migas77/ExchangeRate/commit/2344f103800ec9bb4f46797486566f44c0da2161))
+
+### Refactors
+
+* **structure:** ProblemDetails -> ProblemDetailsFactory ([e7310c1](https://github.com/Migas77/ExchangeRate/commit/e7310c121d1e451a76aba18f241c46b044976e28))
+* **structure:** public methods to top of class file ([5463f41](https://github.com/Migas77/ExchangeRate/commit/5463f41240540eac3c006c5335c5b46b491e3233))
+
+### Build
+
+* **mvn:** add oTel starter (introduces traceId and spanId in structured loggign) - not currently exporting logs, traces, metrics ([0b3b6bc](https://github.com/Migas77/ExchangeRate/commit/0b3b6bc1424e39e26062737bcc79a80e90fc6077))
+* **mvn:** filter ci properties ([07681b6](https://github.com/Migas77/ExchangeRate/commit/07681b666428b6af1f5281ce1fe29de1ff2d301d))
+
+### Documentation
+
+* **README:** challenge details (part 1) ([8d4b4b9](https://github.com/Migas77/ExchangeRate/commit/8d4b4b94dad74c75c0cca894d032fd816c13b987))
+* **README:** challenge details (part 2) ([c5bebcd](https://github.com/Migas77/ExchangeRate/commit/c5bebcde54acc52d8d83c1957732a8d59c78b261))
+* **README:** challenge details (part 3) ([3b1654a](https://github.com/Migas77/ExchangeRate/commit/3b1654a27d84e9dfa3c0c219be3a387cf02f0df0))
+* **README:** challenge details (part final) ([7d56e0f](https://github.com/Migas77/ExchangeRate/commit/7d56e0fd356f68454fd6d7fd40682bc2b4b8f796))
+* **README:** missing comma, fix typos ([ca88ab7](https://github.com/Migas77/ExchangeRate/commit/ca88ab7cc4ae0eef3b0e6244586b309f8c55db48))
+* **README:** wrong link ([0881574](https://github.com/Migas77/ExchangeRate/commit/08815745324bf25cd13be8552360bb0dc243b055))
+
 ## [2.1.0](https://github.com/Migas77/ExchangeRate/compare/v2.0.0...v2.1.0) (2026-08-06)
 
 ### Features
