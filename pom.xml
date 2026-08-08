@@ -42,6 +42,7 @@
 		<io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
 		<spring-cloud.version>2025.1.2</spring-cloud.version>
 		<bucket4j_jdk17.version>8.19.0</bucket4j_jdk17.version>
+		<redisson-spring-boot-starter.version>4.6.1</redisson-spring-boot-starter.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -90,6 +91,17 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.redisson</groupId>
+			<artifactId>redisson-spring-boot-starter</artifactId>
+			<version>${redisson-spring-boot-starter.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.redisson</groupId>
+			<artifactId>redisson-spring-cache</artifactId>
+			<version>${redisson-spring-boot-starter.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

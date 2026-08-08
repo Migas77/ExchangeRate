@@ -1,5 +1,7 @@
 # Exchange Rate Challenge
 
+> **Disclaimer:** On this branch the `ExchangeRatesServiceRedisCachingIT` and `GatewayAuthRateLimitIT` integration tests do not pass, since they were not updated for the new cache configuration. All other tests pass.
+
 API that fetches exchange rates from a publicly available API and uses them for conversion calculations, using Java and the Spring Framework. [Challenge Script](https://drive.google.com/file/d/16NZ2tXanYFSa2bUTXqOQoUSNKznK2czA/view?usp=sharing). The backend Docker image can be found at my [DockerHub](https://hub.docker.com/repository/docker/migas77/exchange-rate-api/general). Sonar build details and quality results can be found in my [SonarCloud](https://sonarcloud.io/project/overview?id=Migas77_ExchangeRate).
 
 
